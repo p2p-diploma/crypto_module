@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthereumTransferGrpc.Server", "EthereumTransferGrpc.Server\EthereumTransferGrpc.Server.csproj", "{7437816A-A5C4-4166-955B-9BB4EF1B8178}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthereumTransferGrpc.Client", "EthereumTransferGrpc.Client\EthereumTransferGrpc.Client.csproj", "{F9EEABDC-5A5A-47CE-841E-BD06D9735F76}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7437816A-A5C4-4166-955B-9BB4EF1B8178}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7437816A-A5C4-4166-955B-9BB4EF1B8178}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7437816A-A5C4-4166-955B-9BB4EF1B8178}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7437816A-A5C4-4166-955B-9BB4EF1B8178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9EEABDC-5A5A-47CE-841E-BD06D9735F76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9EEABDC-5A5A-47CE-841E-BD06D9735F76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9EEABDC-5A5A-47CE-841E-BD06D9735F76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9EEABDC-5A5A-47CE-841E-BD06D9735F76}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

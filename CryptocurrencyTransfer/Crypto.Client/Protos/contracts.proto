@@ -1,0 +1,40 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Crypto.Protos.Contracts";
+
+package contracts;
+
+service TransferAgreementProtoService {
+  rpc StoreInBlock(StoreInBlockRequest) returns (StoreInBlockResponse);
+  rpc TransferToRecipient(TransferToRecipientRequest) returns (TransferToRecipientResponse);
+  rpc DenyTransfer(DenyTransferRequest) returns (DenyTransferResponse);
+}
+
+message StoreInBlockRequest {
+  string SlotId = 1;
+  string recipient = 2;
+  string SenderId = 3;
+  double etherAmount = 4;
+}
+message StoreInBlockResponse {
+  bool IsStored = 1;
+  string ErrorMessage = 2;
+}
+
+message TransferToRecipientRequest {
+  string SlotId = 1;
+  string SenderId = 3;
+}
+message TransferToRecipientResponse {
+  bool IsTransferred = 1;
+  string ErrorMessage = 2;
+}
+
+message DenyTransferRequest {
+  string SlotId = 1;
+  string SenderId = 3;
+}
+message DenyTransferResponse {
+  bool IsDenied = 1;
+  string ErrorMessage = 2;
+}

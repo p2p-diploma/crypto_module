@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  ganache:
+    image: trufflesuite/ganache-cli
+    container_name: ganache
+    restart: always
+    ports:
+      - "8545:8545"
+  crypto_database:
+    image: mongo
+    container_name: crypto_database
+    restart: always
+    ports:
+      - "27017:27017"
+  crypto_server:
+    image: ${DOCKER_REGISTRY-}crypto_server
+    container_name: crypto_server
+    build:
+      context: Crypto.Server
+      dockerfile: ./Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
+      - "BlockchainConnections:Ganache=http://ganache:8545"
+    depends_on:
+      - crypto_database
+      - ganache
+    ports:
+      - "5227:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

@@ -17,8 +17,8 @@ services:
     image: ${DOCKER_REGISTRY-}crypto_server
     container_name: crypto_server
     build:
-      context: Crypto.Server
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Crypto.Server/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80

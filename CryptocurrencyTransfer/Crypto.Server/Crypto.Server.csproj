@@ -4,23 +4,19 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>b3259afe-b65a-4c95-845d-dc29fbc2f00f</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <RootNamespace>Crypto</RootNamespace>
-        <UserSecretsId>8aea04ef-c0c1-4613-920c-0673dea92737</UserSecretsId>
-        <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="Protos\wallets.proto" GrpcServices="Server" ProtoRoot="Protos\" />
-        <Protobuf Include="Protos\contracts.proto" GrpcServices="Server" ProtoRoot="Protos\" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.0" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-        <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
-        <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
-        <PackageReference Include="Nethereum.Web3" Version="4.2.0" />
+      <ProjectReference Include="..\Crypto.Application\Crypto.Application.csproj" />
+      <ProjectReference Include="..\Crypto.Domain\Crypto.Domain.csproj" />
     </ItemGroup>
 
 </Project>

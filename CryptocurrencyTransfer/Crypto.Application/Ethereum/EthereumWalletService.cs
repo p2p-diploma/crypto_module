@@ -58,15 +58,15 @@ public class EthereumWalletService
     }
     
     
-    public async Task<EthereumResponseWalletDto> GetWalletAsync(string id, CancellationToken token = default)
+    public async Task<EthereumWalletDto> GetWalletAsync(string id, CancellationToken token = default)
     {
         var parsedId = ObjectId.Parse(id);
         var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, token);
         if (wallet.Email == string.Empty)
-            throw new ArgumentException($"Wallet with id {id} does not exist");
+            throw new AccountNotFoundException($"Wallet with id {id} does not exist");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
-        return new EthereumResponseWalletDto(balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
+        return new EthereumWalletDto(balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
     }
 }

@@ -2,7 +2,7 @@
 using Crypto.Domain.Dtos.Wallets;
 using FluentValidation;
 
-namespace Crypto.Server.Validators.Wallets;
+namespace Wallets.Server.Validators.Wallets;
 
 public class LoadWalletDtoValidator : AbstractValidator<LoadWalletDto>
 {

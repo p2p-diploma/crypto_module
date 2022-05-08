@@ -32,3 +32,23 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+        
+  wallets_server:
+    image: ${DOCKER_REGISTRY-}wallets_server
+    container_name: wallets_server
+    build:
+      context: .
+      dockerfile: ./Wallets.Server/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
+      - "BlockchainConnections:Ganache=http://ganache:8545"
+    depends_on:
+      - crypto_database
+      - ganache
+    ports:
+      - "6227:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

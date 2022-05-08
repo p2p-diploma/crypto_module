@@ -4,7 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>b3259afe-b65a-4c95-845d-dc29fbc2f00f</UserSecretsId>
+        <UserSecretsId>8752535a-fca7-4c88-a517-66c245dcd4c8</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
@@ -13,12 +13,15 @@
     <ItemGroup>
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.0" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Crypto.Application\Crypto.Application.csproj" />
-      <ProjectReference Include="..\Crypto.Domain\Crypto.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Validators" />
     </ItemGroup>
 
 </Project>

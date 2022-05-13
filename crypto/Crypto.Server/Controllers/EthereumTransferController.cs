@@ -1,8 +1,7 @@
-﻿using Crypto.Application.Ethereum;
-using Crypto.Domain.Contracts.Ethereum.ContractDefinition;
-using Crypto.Domain.Dtos.Ethereum;
+﻿using Crypto.Application.Commands.Ethereum;
+using Crypto.Domain.Exceptions;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Nethereum.Web3;
 
 namespace Crypto.Server.Controllers;
 /// <summary>
@@ -12,73 +11,99 @@ namespace Crypto.Server.Controllers;
 [Route("/api/v1/ethereum")]
 public class EthereumTransferController : ControllerBase
 {
-    private readonly EthereumTransferService _transferService;
-    public EthereumTransferController(EthereumTransferService transferService)
+    private readonly IMediator _mediator;
+    public EthereumTransferController(IMediator mediator)
     {
-        _transferService = transferService;
+        _mediator = mediator;
     }
-    
+
     /// <summary>
-    /// Block sum Ethereum between sender and recipient
+    /// Transfer Ether from platform wallet to P2P wallet
     /// </summary>
-    /// <param name="usersInfo">Ethereum accounts' addresses of sender and recipient and the amount of ether to be transferred </param>
+    /// <param name="command">Platform wallet id; Address of P2P wallet (Ethereum account); Amount of ether </param>
     /// <param name="token"></param>
-    /// <returns>Block sum transaction result message</returns>
-    /// <response code="200">Ether is successfully stored in block</response>
-    /// <response code="400">When sender's or recipient's addresses are invalid, or amount of ether is invalid</response>
-    /// <response code="500">Error with storing Ether: transaction error</response>
-    [HttpPost("block")]
+    /// <returns>Transfer to P2P wallet result message</returns>
+    /// <response code="200">Ether is successfully transferred to P2P wallet</response>
+    /// <response code="400">When wallet id is invalid; when P2P wallet's address is invalid; when amount of ether is less or equal to 0</response>
+    /// <response code="500">Error with transferring ether: transaction error</response>
+    [HttpPost("to_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
-    public async Task<IActionResult> BlockSum([FromBody] BlockSumEthereumDto usersInfo, CancellationToken token)
+    public async Task<IActionResult> TransferToP2P([FromBody] TransferEtherToP2PWalletCommand command, CancellationToken token)
     {
         if (!ModelState.IsValid) return BadRequest();
-        var message = new BlockSumFunction
+        try
         {
-            FromAddress = usersInfo.Sender, Recipient = usersInfo.Recipient,
-            AmountToSend = Web3.Convert.ToWei(usersInfo.EtherAmount)
-        };
-        return await _transferService.BlockSumAsync(message, token) ? Ok("Ether stored in block") : StatusCode(500, "Something went wrong");
+            return await _mediator.Send(command, token) ? 
+                Ok("Transfer to P2P wallet is done") : 
+                StatusCode(500, "Something went wrong");
+        }
+        catch (AccountBalanceException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (BlockchainTransactionException e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
-    
+
     /// <summary>
-    /// Final transfer of ether from block to recipient
+    /// Refund ether from P2P wallet back to platform's wallet
     /// </summary>
-    /// <param name="usersInfo">Ethereum accounts' addresses of sender and recipient </param>
+    /// <param name="command">Platform wallet id; Amount of ether </param>
     /// <param name="token"></param>
-    /// <returns>Transfer transaction result message</returns>
-    /// <response code="200">Ether is successfully transferred</response>
-    /// <response code="400">When sender's or recipient's addresses are invalid</response>
-    /// <response code="500">Error with transferring Ether: transaction error</response>
-    [HttpPost("transfer")]
+    /// <returns>Refund result message</returns>
+    /// <response code="200">Ether is successfully transferred back to platform wallet</response>
+    /// <response code="400">When wallet id is invalid; when amount of ether is less or equal to 0</response>
+    /// <response code="500">Error with transferring ether: transaction error</response>
+    [HttpPost("refund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
-    public async Task<IActionResult> FinalTransfer([FromBody] FinalEthereumTransferDto usersInfo, CancellationToken token)
+    public async Task<IActionResult> Refund([FromBody] RefundEtherFromP2PWalletCommand command, CancellationToken token)
     {
         if (!ModelState.IsValid) return BadRequest();
-        var message = new FinalTransferFunction
+        try
         {
-            FromAddress = usersInfo.Sender, Recipient = usersInfo.Recipient,
-        };
-        return await _transferService.TransferAsync(message, token) ? Ok("Transferred") : StatusCode(500, "Something went wrong");
+            return await _mediator.Send(command, token) ? 
+                Ok("Refund from P2P wallet is done") : 
+                StatusCode(500, "Something went wrong");
+        }
+        catch (AccountBalanceException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (BlockchainTransactionException e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
-    
+
     /// <summary>
-    /// Revert of transfer of ether from block to recipient
+    /// Transfer ether from P2P wallet to recipient's wallet
     /// </summary>
-    /// <param name="usersInfo">Ethereum accounts' addresses of sender and recipient </param>
+    /// <param name="command">P2P wallet id; Address of recipient's wallet (Ethereum account); Amount of ether </param>
     /// <param name="token"></param>
-    /// <returns>Revert transaction result message</returns>
-    /// <response code="200">Transfer is successfully reverted</response>
-    /// <response code="400">When sender's or recipient's addresses are invalid</response>
-    /// <response code="500">Error with reverting transfer: transaction error</response>
-    [HttpPost("revert")]
+    /// <returns>Transfer to recipient's wallet result message</returns>
+    /// <response code="200">Ether are successfully transferred to recipient's wallet</response>
+    /// <response code="400">When P2P wallet id is invalid; when recipient's address is invalid; when amount of ether is less or equal to 0</response>
+    /// <response code="500">Error with transferring ether: transaction error</response>
+    [HttpPost("from_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
-    public async Task<IActionResult> RevertTransfer([FromBody] RevertEthereumTransferDto usersInfo, CancellationToken token)
+    public async Task<IActionResult> TransferFromP2P([FromBody] TransferEtherFromP2PWalletCommand command, CancellationToken token)
     {
         if (!ModelState.IsValid) return BadRequest();
-        var message = new RevertTransferFunction
+        try
         {
-            FromAddress = usersInfo.Sender, Recipient = usersInfo.Recipient,
-        };
-        return await _transferService.RevertTransferAsync(message, token) ? Ok("Reverted transfer") : StatusCode(500, "Something went wrong");
+            return await _mediator.Send(command, token) ? 
+                Ok("Transfer from P2P wallet is done") :
+                StatusCode(500, "Something went wrong");
+        }
+        catch (AccountBalanceException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (BlockchainTransactionException e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

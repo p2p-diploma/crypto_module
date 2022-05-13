@@ -1,14 +1,16 @@
+global using static Crypto.Data.ObjectIdExtension;
 using System.Reflection;
-using Crypto.Application.ERC20;
-using Crypto.Application.Ethereum;
+using Crypto.Application.Responses.ERC20;
+using Crypto.Application.Utils;
 using Crypto.Data.Configuration;
 using Crypto.Data.Repositories;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
+using Crypto.Server.Validators.Ethereum;
 using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -16,56 +18,40 @@ using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers()
-    .AddFluentValidation(opt => opt.RegisterValidatorsFromAssemblyContaining<Program>())
+#region MediatR, FluentValidation, Controllers
+builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RefundEtherFromP2PWalletValidator>())
     .ConfigureApiBehaviorOptions(opt => {
         opt.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(context.ModelState.Values.First(q => q.Errors.Count > 0).Errors.First(er => !string.IsNullOrEmpty(er.ErrorMessage)).ErrorMessage);
+    });
+builder.Services.AddMediatR(typeof(ERC20WalletResponse).Assembly);
+#endregion
+#region Utils
+builder.Services.AddTransient(opt =>
+{
+    var connections = opt.GetRequiredService<BlockchainConnections>();
+    return new EthereumAccountManager(connections.Ganache, connections);
 });
+#endregion
 #region Configuration
-builder.Services.Configure<BlockchainConnections>(builder.Configuration.GetSection("BlockchainConnections"));
-builder.Services.Configure<SmartContractSettings>(builder.Configuration.GetSection("SmartContractSettings"));
-builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));
+builder.Services.AddSingleton(new BlockchainConnections
+{
+    Ganache = builder.Configuration["BlockchainConnections:Ganache"], Kovan = builder.Configuration["BlockchainConnections:Kovan"],
+    Rinkeby = builder.Configuration["BlockchainConnections:Rinkeby"], Goerly = builder.Configuration["BlockchainConnections:Goerly"],
+    Ropsten = builder.Configuration["BlockchainConnections:Ropsten"]
+});
+builder.Services.AddSingleton(new SmartContractSettings { StandardERC20Address = builder.Configuration["SmartContractSettings:StandardERC20Address"] });
+builder.Services.AddSingleton(new DatabaseSettings
+{
+    ConnectionString = builder.Configuration["DatabaseSettings:ConnectionString"],
+    DatabaseName = builder.Configuration["DatabaseSettings:DatabaseName"],
+    EthereumWalletsCollection = builder.Configuration["DatabaseSettings:EthereumWalletsCollection"],
+    EthereumP2PWalletsCollection = builder.Configuration["DatabaseSettings:EthereumP2PWalletsCollection"],
+});
 #endregion
 #region Data
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuration["DatabaseSettings:ConnectionString"]));
-builder.Services.AddScoped<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>>(opt =>
-{
-    var settings = opt.GetRequiredService<IOptions<DatabaseSettings>>();
-    var client = opt.GetRequiredService<IMongoClient>();
-    return new EthereumWalletsRepository(settings.Value, client);
-});
-#endregion
-#region Ethereum
-builder.Services.AddTransient(opt =>
-{
-    var connections = opt.GetRequiredService<IOptions<BlockchainConnections>>().Value;
-    return new EthereumAccountManager(connections.Ganache, connections);
-});
-builder.Services.AddScoped<EthereumWalletService>();
-builder.Services.AddScoped(opt =>
-{
-    var settings = opt.GetRequiredService<IOptions<SmartContractSettings>>().Value;
-    var repository = opt.GetRequiredService<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>>();
-    var manager = opt.GetRequiredService<EthereumAccountManager>();
-    return new EthereumTransferService(settings, repository, manager);
-});
-builder.Services.AddScoped(opt =>
-{
-    var settings = opt.GetRequiredService<IOptions<SmartContractSettings>>().Value;
-    var repository = opt.GetRequiredService<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>>();
-    var manager = opt.GetRequiredService<EthereumAccountManager>();
-    return new ERC20WalletService(settings, repository, manager);
-});
-#endregion
-#region ERC20
-builder.Services.AddScoped(opt =>
-{
-    var settings = opt.GetRequiredService<IOptions<SmartContractSettings>>().Value;
-    var repository = opt.GetRequiredService<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>>();
-    var manager = opt.GetRequiredService<EthereumAccountManager>();
-    return new ERC20TransferService(settings, repository, manager);
-});
+builder.Services.AddScoped<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>, EthereumWalletsRepository>();
+builder.Services.AddScoped<IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>, P2PWalletsRepository>();
 #endregion
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

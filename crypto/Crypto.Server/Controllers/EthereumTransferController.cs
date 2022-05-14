@@ -8,7 +8,7 @@ namespace Crypto.Server.Controllers;
 /// Ethereum transfer operations
 /// </summary>
 [ApiController]
-[Route("/api/v1/ethereum")]
+[Route("/api/v1/ethereum/transfer")]
 public class EthereumTransferController : ControllerBase
 {
     private readonly IMediator _mediator;

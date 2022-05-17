@@ -10,7 +10,7 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
-public class GetEthereumWalletByEmailHandler : IRequestHandler<GetEthereumWalletByEmailQuery, EthereumWalletResponse>
+public class GetEthereumWalletByEmailHandler : IRequestHandler<GetEthereumWalletByEmailQuery, EthereumWalletWithIdResponse>
 {
     private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
@@ -21,7 +21,7 @@ public class GetEthereumWalletByEmailHandler : IRequestHandler<GetEthereumWallet
         _accountManager = accountManager;
     }
 
-    public async Task<EthereumWalletResponse> Handle(GetEthereumWalletByEmailQuery request, CancellationToken cancellationToken)
+    public async Task<EthereumWalletWithIdResponse> Handle(GetEthereumWalletByEmailQuery request, CancellationToken cancellationToken)
     {
         var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
         if (wallet.Id == ObjectId.Empty)
@@ -29,6 +29,6 @@ public class GetEthereumWalletByEmailHandler : IRequestHandler<GetEthereumWallet
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
-        return new(balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
+        return new(wallet.Id.ToString(), balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
     }
 }

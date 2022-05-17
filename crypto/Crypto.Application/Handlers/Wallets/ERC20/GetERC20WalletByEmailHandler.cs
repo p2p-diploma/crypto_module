@@ -12,7 +12,7 @@ using Nethereum.Web3;
 
 namespace Crypto.Application.Handlers.Wallets.ERC20;
 
-public class GetERC20WalletByEmailHandler : IRequestHandler<GetERC20WalletByEmailQuery, ERC20WalletResponse>
+public class GetERC20WalletByEmailHandler : IRequestHandler<GetErc20WalletByEmailQuery, Erc20WalletWithIdResponse>
 {
     private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
@@ -24,15 +24,15 @@ public class GetERC20WalletByEmailHandler : IRequestHandler<GetERC20WalletByEmai
         _accountManager = accountManager;
         _tokenAddress = settings.StandardERC20Address;
     }
-    public async Task<ERC20WalletResponse> Handle(GetERC20WalletByEmailQuery request, CancellationToken cancellationToken)
+    public async Task<Erc20WalletWithIdResponse> Handle(GetErc20WalletByEmailQuery request, CancellationToken cancellationToken)
     {
         var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
-        if (wallet.Email == string.Empty)
+        if (wallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Token wallet with email {request.Email} does not exist");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var web3 = new Web3(loadedAccount, _accountManager.BlockchainUrl);
         var tokensAmount = await web3.Eth.ERC20.GetContractService(_tokenAddress).BalanceOfQueryAsync(loadedAccount.Address);
-        return new(loadedAccount.Address, Web3.Convert.FromWei(tokensAmount, UnitConversion.EthUnit.Gwei));
+        return new(wallet.Id.ToString(), loadedAccount.Address, Web3.Convert.FromWei(tokensAmount, UnitConversion.EthUnit.Gwei));
     }
 }

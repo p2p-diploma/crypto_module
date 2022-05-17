@@ -23,7 +23,7 @@ builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidator
     .ConfigureApiBehaviorOptions(opt => {
         opt.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(context.ModelState.Values.First(q => q.Errors.Count > 0).Errors.First(er => !string.IsNullOrEmpty(er.ErrorMessage)).ErrorMessage);
     });
-builder.Services.AddMediatR(typeof(ERC20WalletResponse).Assembly);
+builder.Services.AddMediatR(typeof(Erc20WalletResponse).Assembly);
 #endregion
 #region Utils
 builder.Services.AddTransient(opt =>

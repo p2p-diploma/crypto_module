@@ -10,7 +10,7 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
-public class GetEthereumP2PWalletByEmailHandler : IRequestHandler<GetEthereumP2PWalletByEmailQuery, EthereumP2PWalletResponse>
+public class GetEthereumP2PWalletByEmailHandler : IRequestHandler<GetEthereumP2PWalletByEmailQuery, EthereumP2PWalletWithIdResponse>
 {
     private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
@@ -21,7 +21,7 @@ public class GetEthereumP2PWalletByEmailHandler : IRequestHandler<GetEthereumP2P
         _accountManager = accountManager;
     }
 
-    public async Task<EthereumP2PWalletResponse> Handle(GetEthereumP2PWalletByEmailQuery request, CancellationToken cancellationToken)
+    public async Task<EthereumP2PWalletWithIdResponse> Handle(GetEthereumP2PWalletByEmailQuery request, CancellationToken cancellationToken)
     {
         var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
         if (wallet.Id == ObjectId.Empty)
@@ -29,6 +29,6 @@ public class GetEthereumP2PWalletByEmailHandler : IRequestHandler<GetEthereumP2P
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
-        return new(loadedAccount.Address, balanceInEther);
+        return new(wallet.Id.ToString(), loadedAccount.Address, balanceInEther);
     }
 }

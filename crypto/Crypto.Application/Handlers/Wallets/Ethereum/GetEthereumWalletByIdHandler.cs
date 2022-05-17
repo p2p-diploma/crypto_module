@@ -25,7 +25,7 @@ public class GetEthereumWalletByIdHandler : IRequestHandler<GetEthereumWalletByI
     {
         var parsedId = ObjectId.Parse(request.Id);
         var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, token);
-        if (wallet.Email == string.Empty)
+        if (wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"Wallet with id {request.Id} is not found");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);

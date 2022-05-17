@@ -41,14 +41,14 @@ public class ERC20WalletsController : ControllerBase
     /// <response code="404">When wallet is not found</response>
     /// <response code="500">When wallet info is not shown due to some error</response>
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ERC20WalletResponse), 200)]
+    [ProducesResponseType(typeof(Erc20WalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetTokenWalletById(string id, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
         try
         {
-            return Ok(await _mediator.Send(new GetERC20WalletByIdQuery(id), token));
+            return Ok(await _mediator.Send(new GetErc20WalletByIdQuery(id), token));
         }
         catch (AccountNotFoundException e)
         {
@@ -83,14 +83,14 @@ public class ERC20WalletsController : ControllerBase
     /// <response code="404">When wallet is not found</response>
     /// <response code="500">When wallet info is not shown due to some error</response>
     [HttpGet("email/{email}")]
-    [ProducesResponseType(typeof(ERC20WalletResponse), 200)]
+    [ProducesResponseType(typeof(Erc20WalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetTokenWalletByEmail([EmailAddress] string email, CancellationToken token)
     {
         if (!ModelState.IsValid) return BadRequest("Email is invalid");
         try
         {
-            return Ok(await _mediator.Send(new GetERC20WalletByEmailQuery(email), token));
+            return Ok(await _mediator.Send(new GetErc20WalletByEmailQuery(email), token));
         }
         catch (AccountNotFoundException e)
         {
@@ -125,14 +125,14 @@ public class ERC20WalletsController : ControllerBase
     /// <response code="404">When wallet is not found</response>
     /// <response code="500">When wallet info is not shown due to some error</response>
     [HttpGet("{id}/p2p")]
-    [ProducesResponseType(typeof(ERC20P2PWalletResponse), 200)]
+    [ProducesResponseType(typeof(Erc20P2PWalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetP2PTokenWallet(string id, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
         try
         {
-            return Ok(await _mediator.Send(new GetERC20P2PWalletByIdQuery(id), token));
+            return Ok(await _mediator.Send(new GetErc20P2PWalletByIdQuery(id), token));
         }
         catch (AccountNotFoundException e)
         {
@@ -167,14 +167,14 @@ public class ERC20WalletsController : ControllerBase
     /// <response code="404">When wallet is not found</response>
     /// <response code="500">When wallet info is not shown due to some error</response>
     [HttpGet("email/{email}/p2p")]
-    [ProducesResponseType(typeof(ERC20P2PWalletResponse), 200)]
+    [ProducesResponseType(typeof(Erc20P2PWalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetP2PTokenWalletByEmail([EmailAddress] string email, CancellationToken token)
     {
         if (!ModelState.IsValid) return BadRequest("Email is invalid");
         try
         {
-            return Ok(await _mediator.Send(new GetERC20P2PWalletByEmailQuery(email), token));
+            return Ok(await _mediator.Send(new GetErc20P2PWalletByEmailQuery(email), token));
         }
         catch (AccountNotFoundException e)
         {

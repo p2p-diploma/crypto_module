@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Crypto.Application.Queries.ERC20;
 
-public record GetERC20P2PWalletByEmailQuery(string Email) : IRequest<ERC20P2PWalletResponse>;
+public record GetErc20WalletByIdQuery(string Id) : IRequest<Erc20WalletResponse>;

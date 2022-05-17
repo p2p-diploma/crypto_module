@@ -1,5 +1,4 @@
-﻿using Crypto.Application.Commands.Ethereum;
-using Crypto.Application.Commands.Wallets;
+﻿using Crypto.Application.Commands.Wallets;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Application.Utils;
 using Crypto.Domain.Exceptions;
@@ -48,7 +47,7 @@ public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletComma
         if (string.IsNullOrWhiteSpace(loadedAccount.Address))
             throw new AccountNotFoundException("Specified private key is invalid: can't load account");
         
-        var keyStore = EthereumAccountManager.GenerateKeyStore(hash, loadedAccount.PrivateKey);
+        var keyStore = EthereumAccountManager.GenerateKeyStoreFromKey(hash, loadedAccount.PrivateKey);
         EthereumWallet<ObjectId> wallet = new() { Email = request.Email, Hash = hash, KeyStore = keyStore, Id = walletId };
         await _platformWalletsRepository.CreateAsync(wallet, token);
         return new(keyStore.Address, loadedAccount.PrivateKey, walletId.ToString());
@@ -57,7 +56,7 @@ public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletComma
     {
         var keyStore = EthereumAccountManager.GenerateKeyStore(hash, out _);
         EthereumP2PWallet<ObjectId> wallet = new()
-            { Hash = hash, KeyStore = keyStore, Id = ObjectId.GenerateNewId(), UserWalletId = walletId, Email = email };
+            { Hash = hash, KeyStore = keyStore, Id = walletId, Email = email };
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }

@@ -12,7 +12,7 @@ using Nethereum.Web3;
 
 namespace Crypto.Application.Handlers.Wallets.ERC20;
 
-public class GetERC20WalletByIdHandler : IRequestHandler<GetERC20WalletByIdQuery, ERC20WalletResponse>
+public class GetERC20WalletByIdHandler : IRequestHandler<GetErc20WalletByIdQuery, Erc20WalletResponse>
 {
     private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
@@ -24,11 +24,11 @@ public class GetERC20WalletByIdHandler : IRequestHandler<GetERC20WalletByIdQuery
         _accountManager = accountManager;
         _tokenAddress = settings.StandardERC20Address;
     }
-    public async Task<ERC20WalletResponse> Handle(GetERC20WalletByIdQuery request, CancellationToken token)
+    public async Task<Erc20WalletResponse> Handle(GetErc20WalletByIdQuery request, CancellationToken token)
     {
         var parsedId = ObjectId.Parse(request.Id);
         var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, token);
-        if (wallet.Email == string.Empty)
+        if (wallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Token wallet with id {request.Id} does not exist");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);

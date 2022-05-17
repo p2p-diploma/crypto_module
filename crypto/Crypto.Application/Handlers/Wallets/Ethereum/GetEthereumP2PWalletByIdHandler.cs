@@ -24,7 +24,7 @@ public class GetEthereumP2PWalletByIdHandler : IRequestHandler<GetEthereumP2PWal
     public async Task<EthereumP2PWalletResponse> Handle(GetEthereumP2PWalletByIdQuery request, CancellationToken cancellationToken)
     {
         var parsedId = ObjectId.Parse(request.WalletId);
-        var wallet = await _repository.FindOneAsync(w => w.UserWalletId == parsedId, cancellationToken);
+        var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, cancellationToken);
         if (wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();

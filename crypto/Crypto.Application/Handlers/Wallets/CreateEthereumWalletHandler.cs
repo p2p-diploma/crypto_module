@@ -1,5 +1,4 @@
-﻿using Crypto.Application.Commands.Ethereum;
-using Crypto.Application.Commands.Wallets;
+﻿using Crypto.Application.Commands.Wallets;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Application.Utils;
 using Crypto.Domain.Interfaces;
@@ -44,7 +43,7 @@ public class CreateEthereumWalletHandler : IRequestHandler<CreateEthereumWalletC
     {
         var keyStore = EthereumAccountManager.GenerateKeyStore(hash, out _);
         EthereumP2PWallet<ObjectId> wallet = new()
-            { Hash = hash, KeyStore = keyStore, Id = ObjectId.GenerateNewId(), UserWalletId = walletId, Email = email };
+            { Hash = hash, KeyStore = keyStore, Id = walletId, Email = email };
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }

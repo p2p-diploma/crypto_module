@@ -31,4 +31,5 @@ public class EthereumWalletsRepository : IWalletsRepository<EthereumWallet<Objec
 
     public async Task<bool> ExistsAsync(Expression<Func<EthereumWallet<ObjectId>, bool>> expr, CancellationToken token = default)
         => await Wallets.AsQueryable().AnyAsync(expr, token);
+    
 }

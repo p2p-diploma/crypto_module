@@ -25,7 +25,7 @@ public class EthereumAccountManager
         return keyStore.EncryptAndGenerateKeyStore(passwordHash, generatedPrivateKey, generatedAddress);
     }
 
-    public static KeyStore<ScryptParams> GenerateKeyStore(string passwordHash, string privateKey)
+    public static KeyStore<ScryptParams> GenerateKeyStoreFromKey(string passwordHash, string privateKey)
     {
         var key = new EthECKey(privateKey);
         byte[] generatedPrivateKey = key.GetPrivateKeyAsBytes();

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Crypto.Application.Queries.Ethereum;
 
-public record GetEthereumWalletByEmailQuery(string Email) : IRequest<EthereumWalletResponse>;
+public record GetEthereumWalletByEmailQuery(string Email) : IRequest<EthereumWalletWithIdResponse>;

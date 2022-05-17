@@ -12,7 +12,7 @@ using Nethereum.Web3;
 
 namespace Crypto.Application.Handlers.Wallets.ERC20;
 
-public class GetERC20P2PWalletByEmailHandler : IRequestHandler<GetERC20P2PWalletByEmailQuery, ERC20P2PWalletResponse>
+public class GetERC20P2PWalletByEmailHandler : IRequestHandler<GetErc20P2PWalletByEmailQuery, Erc20P2PWalletWithIdResponse>
 {
     private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
@@ -24,7 +24,7 @@ public class GetERC20P2PWalletByEmailHandler : IRequestHandler<GetERC20P2PWallet
         _accountManager = accountManager;
         _tokenAddress = settings.StandardERC20Address;
     }
-    public async Task<ERC20P2PWalletResponse> Handle(GetERC20P2PWalletByEmailQuery request, CancellationToken cancellationToken)
+    public async Task<Erc20P2PWalletWithIdResponse> Handle(GetErc20P2PWalletByEmailQuery request, CancellationToken cancellationToken)
     {
         var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
         if (wallet.Id == ObjectId.Empty)
@@ -33,6 +33,6 @@ public class GetERC20P2PWalletByEmailHandler : IRequestHandler<GetERC20P2PWallet
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var web3 = new Web3(loadedAccount, _accountManager.BlockchainUrl);
         var tokensAmount = await web3.Eth.ERC20.GetContractService(_tokenAddress).BalanceOfQueryAsync(loadedAccount.Address);
-        return new(loadedAccount.Address, Web3.Convert.FromWei(tokensAmount, UnitConversion.EthUnit.Gwei));
+        return new(wallet.Id.ToString(), loadedAccount.Address, Web3.Convert.FromWei(tokensAmount, UnitConversion.EthUnit.Gwei));
     }
 }

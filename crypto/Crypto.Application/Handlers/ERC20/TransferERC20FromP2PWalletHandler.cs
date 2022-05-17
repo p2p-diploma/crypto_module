@@ -22,7 +22,7 @@ public class TransferERC20FromP2PWalletHandler : ERC20TransferHandlerBase<Transf
     public override async Task<bool> Handle(TransferERC20FromP2PWalletCommand request, CancellationToken cancellationToken)
     {
         var parsedId = ObjectId.Parse(request.WalletId);
-        var p2pWallet = await _repository.FindOneAsync(w => w.UserWalletId == parsedId, cancellationToken);
+        var p2pWallet = await _repository.FindOneAsync(w => w.Id == parsedId, cancellationToken);
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();

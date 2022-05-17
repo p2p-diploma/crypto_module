@@ -32,7 +32,7 @@ public class TransferERC20ToP2PWalletHandler : ERC20TransferHandlerBase<Transfer
         if (userWallet == null || userWallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Wallet with id {request.WalletId} does not exist");
         var scryptService = new KeyStoreScryptService();
-        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.UserWalletId == userId, token);
+        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.Id == userId, token);
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(userWallet.KeyStore), userWallet.Hash);
         return await Transfer(p2pWallet.KeyStore.Address, request.Amount, account, token);
     }

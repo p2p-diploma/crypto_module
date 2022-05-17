@@ -26,7 +26,7 @@ public class RefundERC20FromP2PWalletHandler : ERC20TransferHandlerBase<RefundER
     public override async Task<bool> Handle(RefundERC20FromP2PWalletCommand request, CancellationToken cancellationToken)
     {
         var userId = ObjectId.Parse(request.WalletId);
-        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.UserId == userId, cancellationToken);
+        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.UserWalletId == userId, cancellationToken);
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         

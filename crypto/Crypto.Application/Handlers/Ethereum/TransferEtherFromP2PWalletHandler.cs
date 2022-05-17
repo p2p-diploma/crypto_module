@@ -21,7 +21,7 @@ public class TransferEtherFromP2PWalletHandler : EthereumTransferHandlerBase<Tra
     public override async Task<bool> Handle(TransferEtherFromP2PWalletCommand request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.WalletId);
-        var p2pWallet = await _repository.FindOneAsync(w => w.UserId == id, cancellationToken);
+        var p2pWallet = await _repository.FindOneAsync(w => w.UserWalletId == id, cancellationToken);
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();

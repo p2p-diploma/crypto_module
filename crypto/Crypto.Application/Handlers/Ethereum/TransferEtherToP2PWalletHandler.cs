@@ -29,7 +29,7 @@ public class TransferEtherToP2PWalletHandler : EthereumTransferHandlerBase<Trans
         if (userWallet == null || userWallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Wallet with id {request.WalletId} does not exist");
         
-        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.UserId == userId, cancellationToken);
+        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.UserWalletId == userId, cancellationToken);
         var scryptService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(userWallet.KeyStore), userWallet.Hash);
         return await Transfer(p2pWallet.KeyStore.Address, request.Amount, account, cancellationToken);

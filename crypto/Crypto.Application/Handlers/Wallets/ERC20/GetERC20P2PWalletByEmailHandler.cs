@@ -10,26 +10,25 @@ using Nethereum.KeyStore;
 using Nethereum.Util;
 using Nethereum.Web3;
 
-namespace Crypto.Application.Handlers.Wallets;
+namespace Crypto.Application.Handlers.Wallets.ERC20;
 
-public class GetERC20WalletHandler : IRequestHandler<GetERC20WalletQuery, ERC20WalletResponse>
+public class GetERC20P2PWalletByEmailHandler : IRequestHandler<GetERC20P2PWalletByEmailQuery, ERC20P2PWalletResponse>
 {
-    private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _repository;
+    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
     private readonly string _tokenAddress;
-    public GetERC20WalletHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository, EthereumAccountManager accountManager,
-        SmartContractSettings settings)
+    public GetERC20P2PWalletByEmailHandler(IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository,
+        EthereumAccountManager accountManager, SmartContractSettings settings)
     {
         _repository = repository;
         _accountManager = accountManager;
         _tokenAddress = settings.StandardERC20Address;
     }
-    public async Task<ERC20WalletResponse> Handle(GetERC20WalletQuery request, CancellationToken token)
+    public async Task<ERC20P2PWalletResponse> Handle(GetERC20P2PWalletByEmailQuery request, CancellationToken cancellationToken)
     {
-        var parsedId = ObjectId.Parse(request.Id);
-        var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, token);
-        if (wallet.Email == string.Empty)
-            throw new ArgumentException($"Token wallet with id {request.Id} does not exist");
+        var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
+        if (wallet.Id == ObjectId.Empty)
+            throw new ArgumentException($"Token wallet with email {request.Email} does not exist");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var web3 = new Web3(loadedAccount, _accountManager.BlockchainUrl);

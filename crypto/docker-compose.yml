@@ -29,9 +29,6 @@ services:
       - ganache
     ports:
       - "5227:80"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
         
   wallets_server:
     image: ${DOCKER_REGISTRY-}wallets_server
@@ -49,6 +46,3 @@ services:
       - ganache
     ports:
       - "6227:80"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

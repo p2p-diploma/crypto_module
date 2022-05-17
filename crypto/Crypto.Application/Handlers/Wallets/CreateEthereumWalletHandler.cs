@@ -22,13 +22,13 @@ public class CreateEthereumWalletHandler : IRequestHandler<CreateEthereumWalletC
         _p2pWalletsRepository = p2PWalletsRepository;
     }
 
-    public async Task<CreatedEthereumWalletResponse> Handle(CreateEthereumWalletCommand request, CancellationToken token)
+    public async Task<CreatedEthereumWalletResponse> Handle(CreateEthereumWalletCommand command, CancellationToken token)
     {
-        if (await _platformWalletsRepository.ExistsAsync(w => w.Email == request.Email, token))
-            throw new ArgumentException($"Wallet with email {request.Email} already exists");
+        if (await _platformWalletsRepository.ExistsAsync(w => w.Email == command.Email, token))
+            throw new ArgumentException($"Wallet with email {command.Email} already exists");
         var walletId = ObjectId.GenerateNewId(DateTime.Now);
-        var passwordHash = HashPassword(request.Password);
-        var createdWallets = await Task.WhenAll(CreatePlatformWallet(request, walletId, passwordHash, token), CreateP2PWallet(walletId, passwordHash, token));
+        var passwordHash = HashPassword(command.Password);
+        var createdWallets = await Task.WhenAll(CreatePlatformWallet(command, walletId, passwordHash, token), CreateP2PWallet(walletId, passwordHash, command.Email, token));
         return createdWallets[0];
     }
 
@@ -40,11 +40,11 @@ public class CreateEthereumWalletHandler : IRequestHandler<CreateEthereumWalletC
         await _platformWalletsRepository.CreateAsync(wallet, token);
         return new(keyStore.Address, privateKey, walletId.ToString());
     }
-    private async Task<CreatedEthereumWalletResponse> CreateP2PWallet(ObjectId walletId, string hash, CancellationToken token)
+    private async Task<CreatedEthereumWalletResponse> CreateP2PWallet(ObjectId walletId, string hash, string email, CancellationToken token)
     {
         var keyStore = EthereumAccountManager.GenerateKeyStore(hash, out _);
         EthereumP2PWallet<ObjectId> wallet = new()
-            { Hash = hash, KeyStore = keyStore, Id = ObjectId.GenerateNewId(), UserId = walletId };
+            { Hash = hash, KeyStore = keyStore, Id = ObjectId.GenerateNewId(), UserWalletId = walletId, Email = email };
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }

@@ -1,0 +1,189 @@
+﻿using System.ComponentModel.DataAnnotations;
+using Crypto.Application.Queries.Ethereum;
+using Crypto.Application.Responses.Ethereum;
+using Crypto.Domain.Exceptions;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Wallets.Server.Controllers;
+
+[ApiController]
+[Route("api/v1/wallets/ethereum")]
+public class EthereumWalletsController : ControllerBase
+{
+    private readonly IMediator _mediator;
+    public EthereumWalletsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+    /// <summary>
+    /// Returns information about user's Ethereum wallet: Ethereum account's address, private key, and balance in Ether
+    /// </summary>
+    /// <param name="id">Wallet's id in ObjectID format</param>
+    /// <param name="token"></param>
+    /// <returns>Wallet's information: address, private key, and balance in Ether</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     GET /ethereum/6277d227108472b96eee5e56
+    /// 
+    /// Sample response:
+    /// 
+    ///     {
+    ///         "balance": 95.58789490,
+    ///         "privateKey": "e13461ef741ab5f0367707d7f0e539b11c2957888888727a8da26e9e60a9a19f",
+    ///         "address": "0xD2BE74365557b91070405d5007ed2922996CC5da"
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">Returns wallet information</response>
+    /// <response code="400">When wallet id is invalid</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When wallet info is not shown due to some error</response>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(EthereumWalletResponse), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetEthereumWalletById(string id, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
+        try
+        {
+            return Ok(await _mediator.Send(new GetEthereumWalletByIdQuery(id), token));
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    /// <summary>
+    /// Returns information about user's Ethereum wallet: Ethereum account's address, private key, and balance in Ether
+    /// </summary>
+    /// <param name="email">User's email</param>
+    /// <param name="token"></param>
+    /// <returns>Wallet's information: address, private key, and balance in Ether</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     GET /ethereum/email={email}
+    /// 
+    /// Sample response:
+    /// 
+    ///     {
+    ///         "balance": 95.58789490,
+    ///         "privateKey": "e13461ef741ab5f0367707d7f0e539b11c2957888888727a8da26e9e60a9a19f",
+    ///         "address": "0xD2BE74365557b91070405d5007ed2922996CC5da"
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">Returns wallet information</response>
+    /// <response code="400">When wallet id is invalid</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When wallet info is not shown due to some error</response>
+    [HttpGet("email/{email}")]
+    [ProducesResponseType(typeof(EthereumWalletResponse), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetEthereumWalletByEmail([EmailAddress] string email, CancellationToken token)
+    {
+        if (!ModelState.IsValid) return BadRequest("Email is invalid");
+        try
+        {
+            return Ok(await _mediator.Send(new GetEthereumWalletByEmailQuery(email), token));
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    /// <summary>
+    /// Returns information about user's Ethereum P2P wallet: Ethereum account's address, balance in Ether
+    /// </summary>
+    /// <param name="id">Wallet's id in ObjectID format</param>
+    /// <param name="token"></param>
+    /// <returns>P2P wallet's information: address, and balance in Ether</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     GET /ethereum/6277d227108472b96eee5e56/p2p
+    /// 
+    /// Sample response:
+    /// 
+    ///     {
+    ///         "balance": 95.58789490,
+    ///         "address": "0xD2BE74365557b91070405d5007ed2922996CC5da"
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">Returns wallet information</response>
+    /// <response code="400">When wallet id is invalid</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When wallet info is not shown due to some error</response>
+    [HttpGet("{id}/p2p")]
+    [ProducesResponseType(typeof(EthereumP2PWalletResponse), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetP2PWalletById(string id, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
+        try
+        {
+            return Ok(await _mediator.Send(new GetEthereumP2PWalletByIdQuery(id), token));
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    /// <summary>
+    /// Returns information about user's Ethereum P2P wallet: Ethereum account's address, balance in Ether
+    /// </summary>
+    /// <param name="email">User's email</param>
+    /// <param name="token"></param>
+    /// <returns>P2P wallet's information: address, and balance in Ether</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     GET /ethereum/email={email}/p2p
+    /// 
+    /// Sample response:
+    /// 
+    ///     {
+    ///         "balance": 95.58789490,
+    ///         "address": "0xD2BE74365557b91070405d5007ed2922996CC5da"
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">Returns wallet information</response>
+    /// <response code="400">When wallet id is invalid</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When wallet info is not shown due to some error</response>
+    [HttpGet("email/{email}/p2p")]
+    [ProducesResponseType(typeof(EthereumP2PWalletResponse), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetP2PWalletByEmail([EmailAddress] string email, CancellationToken token)
+    {
+        if (!ModelState.IsValid) return BadRequest("Email is invalid");
+        try
+        {
+            return Ok(await _mediator.Send(new GetEthereumP2PWalletByEmailQuery(email), token));
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+}

@@ -38,7 +38,7 @@ public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletComma
         var walletId = ObjectId.GenerateNewId(DateTime.Now);
         var passwordHash = HashPassword(command.Password);
         var createdWallets = await Task.WhenAll(LoadPlatformWallet(command, walletId, passwordHash, token),
-            CreateP2PWallet(walletId, passwordHash, token));
+            CreateP2PWallet(walletId, passwordHash, command.Email, token));
         return createdWallets[0];
     }
     
@@ -53,11 +53,11 @@ public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletComma
         await _platformWalletsRepository.CreateAsync(wallet, token);
         return new(keyStore.Address, loadedAccount.PrivateKey, walletId.ToString());
     }
-    private async Task<CreatedEthereumWalletResponse> CreateP2PWallet(ObjectId walletId, string hash, CancellationToken token)
+    private async Task<CreatedEthereumWalletResponse> CreateP2PWallet(ObjectId walletId, string hash, string email, CancellationToken token)
     {
         var keyStore = EthereumAccountManager.GenerateKeyStore(hash, out _);
         EthereumP2PWallet<ObjectId> wallet = new()
-            { Hash = hash, KeyStore = keyStore, Id = ObjectId.GenerateNewId(), UserId = walletId };
+            { Hash = hash, KeyStore = keyStore, Id = ObjectId.GenerateNewId(), UserWalletId = walletId, Email = email };
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }

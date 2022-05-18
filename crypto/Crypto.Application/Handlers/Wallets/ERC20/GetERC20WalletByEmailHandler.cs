@@ -1,4 +1,5 @@
-﻿using Crypto.Application.Queries.ERC20;
+﻿using Crypto.Application.Handlers.Base;
+using Crypto.Application.Queries.ERC20;
 using Crypto.Application.Responses.ERC20;
 using Crypto.Application.Utils;
 using Crypto.Domain.Configuration;
@@ -12,19 +13,17 @@ using Nethereum.Web3;
 
 namespace Crypto.Application.Handlers.Wallets.ERC20;
 
-public class GetERC20WalletByEmailHandler : IRequestHandler<GetErc20WalletByEmailQuery, Erc20WalletWithIdResponse>
+public class GetERC20WalletByEmailHandler : WalletHandlerBase<GetErc20WalletByEmailQuery, Erc20WalletWithIdResponse, EthereumWallet<ObjectId>>
 {
-    private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
     private readonly string _tokenAddress;
     public GetERC20WalletByEmailHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository, 
-        EthereumAccountManager accountManager, SmartContractSettings settings)
+        EthereumAccountManager accountManager, SmartContractSettings settings) : base(repository)
     {
-        _repository = repository;
         _accountManager = accountManager;
         _tokenAddress = settings.StandardERC20Address;
     }
-    public async Task<Erc20WalletWithIdResponse> Handle(GetErc20WalletByEmailQuery request, CancellationToken cancellationToken)
+    public override async Task<Erc20WalletWithIdResponse> Handle(GetErc20WalletByEmailQuery request, CancellationToken cancellationToken)
     {
         var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
         if (wallet.Id == ObjectId.Empty)

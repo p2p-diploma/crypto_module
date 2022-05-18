@@ -51,7 +51,7 @@ builder.Services.AddSingleton(new DatabaseSettings
 #region Data
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuration["DatabaseSettings:ConnectionString"]));
 builder.Services.AddScoped<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>, EthereumWalletsRepository>();
-builder.Services.AddScoped<IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>, P2PWalletsRepository>();
+builder.Services.AddScoped<IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

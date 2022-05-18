@@ -2,8 +2,5 @@
 
 public class AccountBalanceException : Exception
 {
-    public AccountBalanceException(string message) : base(message)
-    {
-        
-    }
+    public AccountBalanceException(string message) : base(message) { }
 }

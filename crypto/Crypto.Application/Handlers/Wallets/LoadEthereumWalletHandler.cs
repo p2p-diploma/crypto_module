@@ -1,33 +1,29 @@
 ﻿using Crypto.Application.Commands.Wallets;
+using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Application.Utils;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
-using MediatR;
 using MongoDB.Bson;
 using Nethereum.Web3.Accounts;
 using static BCrypt.Net.BCrypt;
 namespace Crypto.Application.Handlers.Wallets;
 
-public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletCommand, CreatedEthereumWalletResponse>
+public class LoadEthereumWalletHandler : WalletHandlerBase<LoadEthereumWalletCommand, CreatedEthereumWalletResponse, EthereumWallet<ObjectId>>
 {
-    private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _platformWalletsRepository;
     private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _p2pWalletsRepository;
     private readonly EthereumAccountManager _accountManager;
+ public LoadEthereumWalletHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository,
+     EthereumAccountManager accountManager, IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2PWalletsRepository) : base(repository)
+     {
+         _accountManager = accountManager;
+         _p2pWalletsRepository = p2PWalletsRepository;
+     }
 
-    public LoadEthereumWalletHandler(IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2pWalletsRepository,
-        IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> platformWalletsRepository,
-        EthereumAccountManager accountManager)
+    public override async Task<CreatedEthereumWalletResponse> Handle(LoadEthereumWalletCommand command, CancellationToken token)
     {
-        _p2pWalletsRepository = p2pWalletsRepository;
-        _platformWalletsRepository = platformWalletsRepository;
-        _accountManager = accountManager;
-    }
-
-    public async Task<CreatedEthereumWalletResponse> Handle(LoadEthereumWalletCommand command, CancellationToken token)
-    {
-        if (await _platformWalletsRepository.ExistsAsync(w => w.Email == command.Email, token))
+        if (await _repository.ExistsAsync(w => w.Email == command.Email, token))
             throw new ArgumentException($"Wallet with email {command.Email} already exists");
         
         var loadedAccount = new Account(command.PrivateKey, _accountManager.ChainId);
@@ -49,7 +45,7 @@ public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletComma
         
         var keyStore = EthereumAccountManager.GenerateKeyStoreFromKey(hash, loadedAccount.PrivateKey);
         EthereumWallet<ObjectId> wallet = new() { Email = request.Email, Hash = hash, KeyStore = keyStore, Id = walletId };
-        await _platformWalletsRepository.CreateAsync(wallet, token);
+        await _repository.CreateAsync(wallet, token);
         return new(keyStore.Address, loadedAccount.PrivateKey, walletId.ToString());
     }
     private async Task<CreatedEthereumWalletResponse> CreateP2PWallet(ObjectId walletId, string hash, string email, CancellationToken token)
@@ -60,4 +56,6 @@ public class LoadEthereumWalletHandler : IRequestHandler<LoadEthereumWalletComma
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }
+
+   
 }

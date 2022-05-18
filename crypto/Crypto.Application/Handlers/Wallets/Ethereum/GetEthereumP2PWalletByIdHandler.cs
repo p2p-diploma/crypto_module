@@ -1,27 +1,25 @@
-﻿using Crypto.Application.Queries.Ethereum;
+﻿using Crypto.Application.Handlers.Base;
+using Crypto.Application.Queries.Ethereum;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Application.Utils;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
-using MediatR;
 using MongoDB.Bson;
 using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
-public class GetEthereumP2PWalletByIdHandler : IRequestHandler<GetEthereumP2PWalletByIdQuery, EthereumP2PWalletResponse>
+public class GetEthereumP2PWalletByIdHandler : WalletHandlerBase<GetEthereumP2PWalletByIdQuery, EthereumP2PWalletResponse, EthereumP2PWallet<ObjectId>>
 {
-    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _repository;
     private readonly EthereumAccountManager _accountManager;
-
-    public GetEthereumP2PWalletByIdHandler(IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository, EthereumAccountManager accountManager)
+    public GetEthereumP2PWalletByIdHandler(IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository, 
+        EthereumAccountManager accountManager) : base(repository)
     {
-        _repository = repository;
         _accountManager = accountManager;
     }
 
-    public async Task<EthereumP2PWalletResponse> Handle(GetEthereumP2PWalletByIdQuery request, CancellationToken cancellationToken)
+    public override async Task<EthereumP2PWalletResponse> Handle(GetEthereumP2PWalletByIdQuery request, CancellationToken cancellationToken)
     {
         var parsedId = ObjectId.Parse(request.WalletId);
         var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, cancellationToken);
@@ -32,4 +30,6 @@ public class GetEthereumP2PWalletByIdHandler : IRequestHandler<GetEthereumP2PWal
         var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
         return new(loadedAccount.Address, balanceInEther);
     }
+
+    
 }

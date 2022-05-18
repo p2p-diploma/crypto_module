@@ -1,7 +1,10 @@
 ﻿using Crypto.Application.Utils;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
+using Crypto.Domain.Interfaces;
+using Crypto.Domain.Models.Base;
 using MediatR;
+using MongoDB.Bson;
 using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 using Nethereum.Util;
 using Nethereum.Web3;
@@ -9,16 +12,17 @@ using Nethereum.Web3.Accounts;
 
 namespace Crypto.Application.Handlers.Base;
 
-public abstract class ERC20TransferHandlerBase<TRequest, TResponse> : IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public abstract class ERC20TransferHandlerBase<TRequest, TResponse, TWallet> : WalletHandlerBase<TRequest, TResponse, TWallet> 
+    where TRequest : IRequest<TResponse> where TWallet : IWallet<ObjectId>
 {
-    protected readonly EthereumAccountManager _accountManager;
     private readonly string _tokenAddress;
-    protected ERC20TransferHandlerBase(EthereumAccountManager accountManager, SmartContractSettings settings)
+    protected readonly EthereumAccountManager _accountManager;
+    protected ERC20TransferHandlerBase(EthereumAccountManager accountManager, 
+        IWalletsRepository<TWallet, ObjectId> repository, SmartContractSettings settings) : base(repository)
     {
         _accountManager = accountManager;
         _tokenAddress = settings.StandardERC20Address;
     }
-    public abstract Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken);
     protected async Task<bool> Transfer(string toAddress, decimal amount, Account signer, CancellationToken cancellationToken) 
     {
         var web3 = new Web3(signer, _accountManager.BlockchainUrl){ TransactionManager = { UseLegacyAsDefault = true } };

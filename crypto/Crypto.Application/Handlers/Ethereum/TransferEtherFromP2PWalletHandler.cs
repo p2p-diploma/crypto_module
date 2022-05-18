@@ -9,15 +9,13 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Ethereum;
 
-public class TransferEtherFromP2PWalletHandler : EthereumTransferHandlerBase<TransferEtherFromP2PWalletCommand, bool>
+public class TransferEtherFromP2PWalletHandler 
+    : EthereumTransferHandlerBase<TransferEtherFromP2PWalletCommand, bool, EthereumP2PWallet<ObjectId>>
 {
-    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _repository;
-    public TransferEtherFromP2PWalletHandler(EthereumAccountManager accountManager,
-        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository) : base(accountManager)
+    public TransferEtherFromP2PWalletHandler(EthereumAccountManager accountManager, 
+        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository) : base(accountManager, repository)
     {
-        _repository = repository;
     }
-
     public override async Task<bool> Handle(TransferEtherFromP2PWalletCommand request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.WalletId);
@@ -28,5 +26,4 @@ public class TransferEtherFromP2PWalletHandler : EthereumTransferHandlerBase<Tra
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(p2pWallet.KeyStore), p2pWallet.Hash);
         return await Transfer(request.RecipientAddress, request.Amount, account, cancellationToken);
     }
-
 }

@@ -20,7 +20,7 @@ public class EthereumWalletsRepository : IWalletsRepository<EthereumWallet<Objec
     }
 
     public async Task<EthereumWallet<ObjectId>> CreateAsync(EthereumWallet<ObjectId> ethereumWallet, CancellationToken token = default)
-    { 
+    {
         await Wallets.InsertOneAsync(ethereumWallet, new InsertOneOptions { BypassDocumentValidation = false }, token);
         return ethereumWallet;
     }

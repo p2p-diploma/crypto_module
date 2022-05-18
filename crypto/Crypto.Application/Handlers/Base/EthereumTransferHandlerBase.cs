@@ -1,22 +1,24 @@
 ﻿using Crypto.Application.Utils;
 using Crypto.Domain.Exceptions;
+using Crypto.Domain.Interfaces;
+using Crypto.Domain.Models.Base;
 using MediatR;
+using MongoDB.Bson;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 
 namespace Crypto.Application.Handlers.Base;
 
-public abstract class EthereumTransferHandlerBase<TRequest, TResponse> 
-    : IRequestHandler<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public abstract class EthereumTransferHandlerBase<TRequest, TResponse, TWallet> 
+    : WalletHandlerBase<TRequest, TResponse, TWallet> where TRequest : IRequest<TResponse> where TWallet : IWallet<ObjectId>
 {
     protected readonly EthereumAccountManager _accountManager;
-    protected EthereumTransferHandlerBase(EthereumAccountManager accountManager)
+    protected EthereumTransferHandlerBase(EthereumAccountManager accountManager, IWalletsRepository<TWallet, ObjectId> repository) 
+        : base(repository)
     {
         _accountManager = accountManager;
     }
-
-    public abstract Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken);
-
+    
     protected async Task<bool> Transfer(string address, decimal amount, Account signer, CancellationToken token)
     {
         var web3 = new Web3(signer, _accountManager.BlockchainUrl){ TransactionManager = { UseLegacyAsDefault = true } };

@@ -110,10 +110,6 @@ public class BaseWalletsController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
     }
     
 }

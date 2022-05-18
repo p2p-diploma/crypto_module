@@ -5,8 +5,9 @@ services:
     image: trufflesuite/ganache-cli
     container_name: ganache
     restart: always
+    command: bash "npm install -g ganache && ganache-cli -p 8545"
     ports:
-      - "8545:8545"
+      - "4227:8545"
   crypto_database:
     image: mongo
     container_name: crypto_database

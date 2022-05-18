@@ -2,7 +2,6 @@
 using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Application.Utils;
-using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
 using MongoDB.Bson;
@@ -25,26 +24,22 @@ public class LoadEthereumWalletHandler : WalletHandlerBase<LoadEthereumWalletCom
     {
         if (await _repository.ExistsAsync(w => w.Email == command.Email, token))
             throw new ArgumentException($"Wallet with email {command.Email} already exists");
+        if (string.IsNullOrWhiteSpace(command.PrivateKey) ||
+            command.PrivateKey.CompareTo("ffffffff ffffffff ffffffff fffffffe baaedce6 af48a03b bfd25e8c d0364141") >= 0)
+            throw new ArgumentException("Specified private key is invalid: can't load account");
         
         var loadedAccount = new Account(command.PrivateKey, _accountManager.ChainId);
-        if (string.IsNullOrWhiteSpace(loadedAccount.Address))
-            throw new AccountNotFoundException("Specified private key is invalid: can't load account");
-
         var walletId = ObjectId.GenerateNewId(DateTime.Now);
         var passwordHash = HashPassword(command.Password);
-        var createdWallets = await Task.WhenAll(LoadPlatformWallet(command, walletId, passwordHash, token),
+        var createdWallets = await Task.WhenAll(LoadPlatformWallet(loadedAccount, walletId, command.Email, passwordHash, token),
             CreateP2PWallet(walletId, passwordHash, command.Email, token));
         return createdWallets[0];
     }
     
-    private async Task<CreatedEthereumWalletResponse> LoadPlatformWallet(LoadEthereumWalletCommand request, ObjectId walletId, string hash, CancellationToken token)
+    private async Task<CreatedEthereumWalletResponse> LoadPlatformWallet(Account loadedAccount, ObjectId walletId, string email, string hash, CancellationToken token)
     {
-        var loadedAccount = new Account(request.PrivateKey, _accountManager.ChainId);
-        if (string.IsNullOrWhiteSpace(loadedAccount.Address))
-            throw new AccountNotFoundException("Specified private key is invalid: can't load account");
-        
         var keyStore = EthereumAccountManager.GenerateKeyStoreFromKey(hash, loadedAccount.PrivateKey);
-        EthereumWallet<ObjectId> wallet = new() { Email = request.Email, Hash = hash, KeyStore = keyStore, Id = walletId };
+        EthereumWallet<ObjectId> wallet = new() { Email = email, Hash = hash, KeyStore = keyStore, Id = walletId };
         await _repository.CreateAsync(wallet, token);
         return new(keyStore.Address, loadedAccount.PrivateKey, walletId.ToString());
     }

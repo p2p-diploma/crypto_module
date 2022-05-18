@@ -7,12 +7,12 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 namespace Crypto.Data.Repositories;
 
-public class P2PWalletsRepository : IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>
+public class EthereumP2PWalletsRepository : IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>
 {
     private readonly IMongoDatabase _database;
     private readonly string _collectionName;
     private IMongoCollection<EthereumP2PWallet<ObjectId>> P2PWallets => _database.GetCollection<EthereumP2PWallet<ObjectId>>(_collectionName);
-    public P2PWalletsRepository(DatabaseSettings settings, IMongoClient client)
+    public EthereumP2PWalletsRepository(DatabaseSettings settings, IMongoClient client)
     {
         _database = client.GetDatabase(settings.DatabaseName);
         _collectionName = settings.EthereumP2PWalletsCollection;

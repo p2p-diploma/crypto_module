@@ -10,15 +10,12 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.ERC20;
 
-public class TransferERC20FromP2PWalletHandler : ERC20TransferHandlerBase<TransferERC20FromP2PWalletCommand,bool>
+public class TransferERC20FromP2PWalletHandler : ERC20TransferHandlerBase<TransferERC20FromP2PWalletCommand,bool, EthereumP2PWallet<ObjectId>>
 {
-    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _repository;
-    public TransferERC20FromP2PWalletHandler(EthereumAccountManager accountManager, SmartContractSettings settings, 
-        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository) : base(accountManager, settings)
-    {
-        _repository = repository;
+    public TransferERC20FromP2PWalletHandler(EthereumAccountManager accountManager, 
+        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository, SmartContractSettings settings) : base(accountManager, repository, settings)
+    {   
     }
-
     public override async Task<bool> Handle(TransferERC20FromP2PWalletCommand request, CancellationToken cancellationToken)
     {
         var parsedId = ObjectId.Parse(request.WalletId);

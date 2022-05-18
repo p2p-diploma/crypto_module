@@ -9,23 +9,20 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Ethereum;
 
-public class RefundEtherFromP2PWalletHandler : EthereumTransferHandlerBase<RefundEtherFromP2PWalletCommand, bool>
+public class RefundEtherFromP2PWalletHandler : EthereumTransferHandlerBase<RefundEtherFromP2PWalletCommand, bool, EthereumP2PWallet<ObjectId>>
 {
-    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _p2pWalletsRepository;
     private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _platformWalletsRepository;
-    
-    public RefundEtherFromP2PWalletHandler(EthereumAccountManager accountManager,
-        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2pWalletsRepository, 
-        IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> platformWalletsRepository) : base(accountManager)
+    public RefundEtherFromP2PWalletHandler(EthereumAccountManager accountManager, 
+        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository, 
+        IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> platformWalletsRepository) : base(accountManager, repository)
     {
-        _p2pWalletsRepository = p2pWalletsRepository;
         _platformWalletsRepository = platformWalletsRepository;
     }
     
     public override async Task<bool> Handle(RefundEtherFromP2PWalletCommand request, CancellationToken cancellationToken)
     {
         var userId = ObjectId.Parse(request.WalletId);
-        var p2pWallet = await _p2pWalletsRepository.FindOneAsync(w => w.Id == userId, cancellationToken);
+        var p2pWallet = await _repository.FindOneAsync(w => w.Id == userId, cancellationToken);
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         
@@ -34,4 +31,5 @@ public class RefundEtherFromP2PWalletHandler : EthereumTransferHandlerBase<Refun
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(p2pWallet.KeyStore), p2pWallet.Hash);
         return await Transfer(userWallet.KeyStore.Address, request.Amount, account, cancellationToken);
     }
+
 }

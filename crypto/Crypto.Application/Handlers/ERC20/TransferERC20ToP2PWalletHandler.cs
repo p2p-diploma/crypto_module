@@ -12,23 +12,20 @@ using Nethereum.Web3.Accounts;
 
 namespace Crypto.Application.Handlers.ERC20;
 
-public class TransferERC20ToP2PWalletHandler : ERC20TransferHandlerBase<TransferERC20ToP2PWalletCommand, bool>
+public class TransferERC20ToP2PWalletHandler : ERC20TransferHandlerBase<TransferERC20ToP2PWalletCommand, bool, EthereumWallet<ObjectId>>
 {
     private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _p2pWalletsRepository;
-    private readonly IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> _platformWalletsRepository;
-    public TransferERC20ToP2PWalletHandler(EthereumAccountManager accountManager, SmartContractSettings settings, 
-        IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> platformWalletsRepository, 
-        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2PWalletsRepository) 
-        : base(accountManager, settings)
+    public TransferERC20ToP2PWalletHandler(EthereumAccountManager accountManager, 
+        IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository, 
+        SmartContractSettings settings, IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2PWalletsRepository) : base(accountManager, repository, settings)
     {
-        _platformWalletsRepository = platformWalletsRepository;
         _p2pWalletsRepository = p2PWalletsRepository;
     }
     
     public override async Task<bool> Handle(TransferERC20ToP2PWalletCommand request, CancellationToken token)
     {
         var userId = ObjectId.Parse(request.WalletId);
-        var userWallet = await _platformWalletsRepository.FindOneAsync(w => w.Id == userId, token);
+        var userWallet = await _repository.FindOneAsync(w => w.Id == userId, token);
         if (userWallet == null || userWallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Wallet with id {request.WalletId} does not exist");
         var scryptService = new KeyStoreScryptService();

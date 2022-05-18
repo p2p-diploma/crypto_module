@@ -9,10 +9,12 @@ using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Wallets.Server.Middlewares;
 using Wallets.Server.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,7 +55,6 @@ builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuratio
 builder.Services.AddScoped<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>, EthereumWalletsRepository>();
 builder.Services.AddScoped<IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -69,7 +70,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
-
+app.UseMiddleware<RequestLoggingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

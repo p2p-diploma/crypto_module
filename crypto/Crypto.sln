@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{6C4B4D9C-C83E-4CDB-A227-BE1EF52D3810}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypto.Domain", "Crypto.Domain\Crypto.Domain.csproj", "{455BAAB5-7979-4741-9F0D-A294C8E27430}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crypto.Data", "Crypto.Data\Crypto.Data.csproj", "{0F2D494F-44E5-4DB1-85F2-85759D0111FD}"
@@ -24,10 +22,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6C4B4D9C-C83E-4CDB-A227-BE1EF52D3810}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C4B4D9C-C83E-4CDB-A227-BE1EF52D3810}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C4B4D9C-C83E-4CDB-A227-BE1EF52D3810}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C4B4D9C-C83E-4CDB-A227-BE1EF52D3810}.Release|Any CPU.Build.0 = Release|Any CPU
 		{455BAAB5-7979-4741-9F0D-A294C8E27430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{455BAAB5-7979-4741-9F0D-A294C8E27430}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{455BAAB5-7979-4741-9F0D-A294C8E27430}.Release|Any CPU.ActiveCfg = Release|Any CPU

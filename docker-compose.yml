@@ -4,10 +4,10 @@ services:
   ganache:
     image: trufflesuite/ganache-cli
     container_name: ganache
+    command: bash "npm install -g ganache && ganache-cli --host 0.0.0.0"
     restart: always
-    command: bash "npm install -g ganache && ganache-cli -p 8545"
     ports:
-      - "4227:8545"
+      - "8545:8545"
   crypto_database:
     image: mongo
     container_name: crypto_database
@@ -18,16 +18,18 @@ services:
     image: ${DOCKER_REGISTRY-}crypto_server
     container_name: crypto_server
     build:
-      context: .
+      context: crypto
       dockerfile: ./Crypto.Server/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
+      - "SmartContractSettings:TokenAddress="
     depends_on:
       - crypto_database
       - ganache
+      - wallets_server
     ports:
       - "5227:80"
         
@@ -35,13 +37,14 @@ services:
     image: ${DOCKER_REGISTRY-}wallets_server
     container_name: wallets_server
     build:
-      context: .
+      context: crypto
       dockerfile: ./Wallets.Server/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
+      - "SmartContractSettings:TokenAddress="
     depends_on:
       - crypto_database
       - ganache

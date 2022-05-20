@@ -1,7 +1,5 @@
 ﻿using Crypto.Application.Commands.Wallets;
-using Crypto.Application.Queries.ERC20;
-using Crypto.Application.Queries.Ethereum;
-using Crypto.Application.Responses.ERC20;
+using Crypto.Application.Commands.Wallets.Buy;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Domain.Exceptions;
 using MediatR;

@@ -6,7 +6,6 @@ using Crypto.Data.Configuration;
 using Crypto.Data.Repositories;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Interfaces;
-using Crypto.Domain.Models;
 using Crypto.Server.Validators.Ethereum;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -29,7 +28,8 @@ builder.Services.AddMediatR(typeof(Erc20WalletResponse).Assembly);
 builder.Services.AddTransient(opt =>
 {
     var connections = opt.GetRequiredService<BlockchainConnections>();
-    return new EthereumAccountManager(connections.Ganache, connections);
+    var settings = opt.GetRequiredService<SmartContractSettings>();
+    return new EthereumAccountManager(connections.Ganache, connections, settings);
 });
 #endregion
 #region Configuration
@@ -50,8 +50,8 @@ builder.Services.AddSingleton(new DatabaseSettings
 #endregion
 #region Data
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuration["DatabaseSettings:ConnectionString"]));
-builder.Services.AddScoped<IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>, EthereumWalletsRepository>();
-builder.Services.AddScoped<IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId>, EthereumP2PWalletsRepository>();
+builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWalletsRepository>();
+builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

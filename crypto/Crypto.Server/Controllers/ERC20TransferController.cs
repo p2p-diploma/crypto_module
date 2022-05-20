@@ -1,5 +1,6 @@
 ﻿using Crypto.Application.Commands.ERC20;
 using Crypto.Application.Commands.Ethereum;
+using Crypto.Application.Responses;
 using Crypto.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,23 +32,7 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("to_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> TransferToP2P([FromBody] TransferERC20ToP2PWalletCommand command, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return await _mediator.Send(command, token)
-                ? Ok("Transfer to P2P wallet is done")
-                : StatusCode(500, "Something went wrong");
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+        => await Transfer(command, token);
 
     /// <summary>
     /// Refund tokens from P2P wallet back to platform's wallet
@@ -61,23 +46,7 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("refund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> Refund([FromBody] RefundERC20FromP2PWalletCommand command, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return await _mediator.Send(command, token) ? 
-                Ok("Refund from P2P wallet is done") :
-                StatusCode(500, "Something went wrong");
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+        => await Transfer(command, token);
 
     /// <summary>
     /// Transfer ERC20 from P2P wallet to recipient's wallet
@@ -91,27 +60,11 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("from_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> TransferFromP2P([FromBody] TransferERC20FromP2PWalletCommand command, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return await _mediator.Send(command, token) ?
-                Ok("Transfer from P2P wallet is done") : 
-                StatusCode(500, "Something went wrong");
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-    
-    
-    
-    
+        => await Transfer(command, token);
+
+
+
+
     /// <summary>
     /// Fund ERC20 P2P wallet with ether: WARNING! For transferring and refunding ERC20 tokens you need to
     /// have some ether on your P2P wallet for paying gas - transaction fee.
@@ -126,13 +79,15 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("fund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> FundP2P([FromBody] TransferEtherToP2PWalletCommand command, CancellationToken token)
+        => await Transfer(command, token);
+    
+    
+    private async Task<IActionResult> Transfer<TRequest>(TRequest command, CancellationToken token) where TRequest : IRequest<TransactionResponse>
     {
         if (!ModelState.IsValid) return BadRequest();
         try
         {
-            return await _mediator.Send(command, token) ? 
-                Ok("Funding is done") : 
-                StatusCode(500, "Something went wrong");
+            return Ok(await _mediator.Send(command, token));
         }
         catch (AccountBalanceException e)
         {

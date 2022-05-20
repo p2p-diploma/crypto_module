@@ -10,17 +10,18 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
-public class GetEthereumWalletByIdHandler : WalletHandlerBase<GetEthereumWalletByIdQuery, EthereumWalletResponse, EthereumWallet<ObjectId>>
+public class GetEthereumWalletByIdHandler : EthereumWalletBaseHandler<GetEthereumWalletByIdQuery, EthereumWalletResponse>
 {
     private readonly EthereumAccountManager _accountManager;
-    public GetEthereumWalletByIdHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository, EthereumAccountManager accountManager) : base(repository)
+    public GetEthereumWalletByIdHandler(IEthereumWalletsRepository<ObjectId> repository, EthereumAccountManager accountManager)
+        : base(repository)
     {
         _accountManager = accountManager;
     }
     public override async Task<EthereumWalletResponse> Handle(GetEthereumWalletByIdQuery request, CancellationToken token)
     {
         var parsedId = ObjectId.Parse(request.Id);
-        var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, token);
+        var wallet = await _repository.FindOneAndProjectAsync(w => w.Id == parsedId, wallet => wallet, token);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"Wallet with id {request.Id} is not found");
         var scryptService = new KeyStoreScryptService();

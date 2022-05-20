@@ -1,4 +1,5 @@
 ﻿using Crypto.Application.Commands.Ethereum;
+using Crypto.Application.Responses;
 using Crypto.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,24 +29,8 @@ public class EthereumTransferController : ControllerBase
     /// <response code="500">Error with transferring ether: transaction error</response>
     [HttpPost("to_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
-    public async Task<IActionResult> TransferToP2P([FromBody] TransferEtherToP2PWalletCommand command, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return await _mediator.Send(command, token) ? 
-                Ok("Transfer to P2P wallet is done") : 
-                StatusCode(500, "Something went wrong");
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+    public async Task<IActionResult> TransferToP2P([FromBody] TransferEtherToP2PWalletCommand command, CancellationToken token) 
+        => await Transfer(command, token);
 
     /// <summary>
     /// Refund ether from P2P wallet back to platform's wallet
@@ -58,24 +43,8 @@ public class EthereumTransferController : ControllerBase
     /// <response code="500">Error with transferring ether: transaction error</response>
     [HttpPost("refund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
-    public async Task<IActionResult> Refund([FromBody] RefundEtherFromP2PWalletCommand command, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return await _mediator.Send(command, token) ? 
-                Ok("Refund from P2P wallet is done") : 
-                StatusCode(500, "Something went wrong");
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+    public async Task<IActionResult> Refund([FromBody] RefundEtherFromP2PWalletCommand command, CancellationToken token) 
+        => await Transfer(command, token);
 
     /// <summary>
     /// Transfer ether from P2P wallet to recipient's wallet
@@ -88,14 +57,16 @@ public class EthereumTransferController : ControllerBase
     /// <response code="500">Error with transferring ether: transaction error</response>
     [HttpPost("from_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
-    public async Task<IActionResult> TransferFromP2P([FromBody] TransferEtherFromP2PWalletCommand command, CancellationToken token)
+    public async Task<IActionResult> TransferFromP2P([FromBody] TransferEtherFromP2PWalletCommand command, CancellationToken token) 
+        => await Transfer(command, token);
+
+
+    private async Task<IActionResult> Transfer<TRequest>(TRequest command, CancellationToken token) where TRequest : IRequest<TransactionResponse>
     {
         if (!ModelState.IsValid) return BadRequest();
         try
         {
-            return await _mediator.Send(command, token) ? 
-                Ok("Transfer from P2P wallet is done") :
-                StatusCode(500, "Something went wrong");
+            return Ok(await _mediator.Send(command, token));
         }
         catch (AccountBalanceException e)
         {

@@ -11,16 +11,17 @@ using Nethereum.KeyStore;
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
 public class GetEthereumP2PWalletByEmailHandler 
-    : WalletHandlerBase<GetEthereumP2PWalletByEmailQuery, EthereumP2PWalletWithIdResponse, EthereumP2PWallet<ObjectId>>
+    : EthereumP2PWalletBaseHandler<GetEthereumP2PWalletByEmailQuery, EthereumP2PWalletWithIdResponse>
 {
     private readonly EthereumAccountManager _accountManager;
-    public GetEthereumP2PWalletByEmailHandler(IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository, EthereumAccountManager accountManager) : base(repository)
+    public GetEthereumP2PWalletByEmailHandler(IEthereumP2PWalletsRepository<ObjectId> repository, EthereumAccountManager accountManager) 
+        : base(repository)
     {
         _accountManager = accountManager;
     }
     public override async Task<EthereumP2PWalletWithIdResponse> Handle(GetEthereumP2PWalletByEmailQuery request, CancellationToken cancellationToken)
     {
-        var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
+        var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, wallet => wallet, cancellationToken);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"P2P wallet with email {request.Email} is not found");
         var scryptService = new KeyStoreScryptService();

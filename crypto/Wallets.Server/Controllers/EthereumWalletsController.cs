@@ -1,6 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Crypto.Application.Commands.Wallets.Buy;
+using Crypto.Application.Commands.Wallets.Sell;
+using Crypto.Application.Queries;
 using Crypto.Application.Queries.Ethereum;
 using Crypto.Application.Responses.Ethereum;
+using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -176,6 +180,209 @@ public class EthereumWalletsController : ControllerBase
         try
         {
             return Ok(await _mediator.Send(new GetEthereumP2PWalletByEmailQuery(email), token));
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    [HttpPut("p2p/setToBuy")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> SetAmountToBuy([FromBody] SetAmountToBuyCommand command, CancellationToken token)
+    {
+        try
+        {
+            command.CurrencyType = CurrencyType.ETHER;
+            return Ok(await _mediator.Send(command, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    [HttpPut("p2p/reduceToBuy")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> ReduceAmountToBuy([FromBody] ReduceAmountToBuyCommand command, CancellationToken token)
+    {
+        try
+        {
+            command.CurrencyType = CurrencyType.ETHER;
+            return Ok(await _mediator.Send(command, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    [HttpPut("p2p/increaseToBuy")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> IncreaseAmountToBuy([FromBody] IncreaseAmountToBuyCommand command, CancellationToken token)
+    {
+        try
+        {
+            command.CurrencyType = CurrencyType.ETHER;
+            return Ok(await _mediator.Send(command, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    [HttpGet("{id}/p2p/amountToBuy")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetAmountToBuy(string id, CancellationToken token)
+    {
+        if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
+        try
+        {
+            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETHER};
+            return Ok(await _mediator.Send(query, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    
+    
+    
+    [HttpPut("p2p/setToSell")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> SetAmountToSell([FromBody] SetAmountToSellCommand command, CancellationToken token)
+    {
+        try
+        {
+            command.CurrencyType = CurrencyType.ETHER;
+            return Ok(await _mediator.Send(command, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    [HttpPut("p2p/reduceToSell")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> ReduceAmountToSell([FromBody] ReduceAmountToSellCommand command, CancellationToken token)
+    {
+        try
+        {
+            command.CurrencyType = CurrencyType.ETHER;
+            return Ok(await _mediator.Send(command, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    [HttpPut("p2p/increaseToSell")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> IncreaseAmountToSell([FromBody] IncreaseAmountToSellCommand command, CancellationToken token)
+    {
+        try
+        {
+            command.CurrencyType = CurrencyType.ETHER;
+            return Ok(await _mediator.Send(command, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountNotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+    
+    
+    [HttpGet("{id}/p2p/amountToSell")]
+    [ProducesResponseType(typeof(decimal), 200)]
+    [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
+    public async Task<IActionResult> GetAmountToSell(string id, CancellationToken token)
+    {
+        if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
+        try
+        {
+            var query = new GetAmountToSellQuery { WalletId = id, CurrencyType = CurrencyType.ETHER};
+            return Ok(await _mediator.Send(query, token));
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
         }
         catch (AccountNotFoundException e)
         {

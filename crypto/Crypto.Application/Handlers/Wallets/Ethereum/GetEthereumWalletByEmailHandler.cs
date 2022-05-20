@@ -11,16 +11,17 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
-public class GetEthereumWalletByEmailHandler : WalletHandlerBase<GetEthereumWalletByEmailQuery, EthereumWalletWithIdResponse, EthereumWallet<ObjectId>>
+public class GetEthereumWalletByEmailHandler : EthereumWalletBaseHandler<GetEthereumWalletByEmailQuery, EthereumWalletWithIdResponse>
 {
     private readonly EthereumAccountManager _accountManager;
-    public GetEthereumWalletByEmailHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository, EthereumAccountManager accountManager) : base(repository)
+    public GetEthereumWalletByEmailHandler(IEthereumWalletsRepository<ObjectId> repository, EthereumAccountManager accountManager)
+        : base(repository)
     {
         _accountManager = accountManager;
     }
     public override async Task<EthereumWalletWithIdResponse> Handle(GetEthereumWalletByEmailQuery request, CancellationToken cancellationToken)
     {
-        var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, cancellationToken);
+        var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, wallet => wallet, cancellationToken);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"Wallet with email {request.Email} is not found");
         var scryptService = new KeyStoreScryptService();

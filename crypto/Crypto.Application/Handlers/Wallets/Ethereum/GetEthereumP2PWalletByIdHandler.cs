@@ -10,10 +10,10 @@ using Nethereum.KeyStore;
 
 namespace Crypto.Application.Handlers.Wallets.Ethereum;
 
-public class GetEthereumP2PWalletByIdHandler : WalletHandlerBase<GetEthereumP2PWalletByIdQuery, EthereumP2PWalletResponse, EthereumP2PWallet<ObjectId>>
+public class GetEthereumP2PWalletByIdHandler : EthereumP2PWalletBaseHandler<GetEthereumP2PWalletByIdQuery, EthereumP2PWalletResponse>
 {
     private readonly EthereumAccountManager _accountManager;
-    public GetEthereumP2PWalletByIdHandler(IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> repository, 
+    public GetEthereumP2PWalletByIdHandler(IEthereumP2PWalletsRepository<ObjectId> repository, 
         EthereumAccountManager accountManager) : base(repository)
     {
         _accountManager = accountManager;
@@ -22,7 +22,7 @@ public class GetEthereumP2PWalletByIdHandler : WalletHandlerBase<GetEthereumP2PW
     public override async Task<EthereumP2PWalletResponse> Handle(GetEthereumP2PWalletByIdQuery request, CancellationToken cancellationToken)
     {
         var parsedId = ObjectId.Parse(request.WalletId);
-        var wallet = await _repository.FindOneAsync(w => w.Id == parsedId, cancellationToken);
+        var wallet = await _repository.FindOneAndProjectAsync(w => w.Id == parsedId, wallet => wallet, cancellationToken);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();

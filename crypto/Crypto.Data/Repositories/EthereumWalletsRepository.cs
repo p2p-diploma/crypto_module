@@ -7,7 +7,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 namespace Crypto.Data.Repositories;
 
-public class EthereumWalletsRepository : IWalletsRepository<EthereumWallet<ObjectId>, ObjectId>
+public class EthereumWalletsRepository : IEthereumWalletsRepository<ObjectId>
 {
     private readonly IMongoDatabase _database;
     private readonly string _collectionName;
@@ -25,11 +25,17 @@ public class EthereumWalletsRepository : IWalletsRepository<EthereumWallet<Objec
         return ethereumWallet;
     }
 
-    public async Task<EthereumWallet<ObjectId>> FindOneAsync(Expression<Func<EthereumWallet<ObjectId>, bool>> expr, 
-        CancellationToken token = default) =>
-        await Wallets.AsQueryable().FirstOrDefaultAsync(expr, token);
+    public async Task<TProjection> FindOneAndProjectAsync<TProjection>(Expression<Func<EthereumWallet<ObjectId>, bool>> expr,
+        Expression<Func<EthereumWallet<ObjectId>, TProjection>> projection, CancellationToken token = default) =>
+        await Wallets.AsQueryable().Where(expr).Select(projection).FirstOrDefaultAsync(token);
 
     public async Task<bool> ExistsAsync(Expression<Func<EthereumWallet<ObjectId>, bool>> expr, CancellationToken token = default)
         => await Wallets.AsQueryable().AnyAsync(expr, token);
-    
+
+    public async Task<EthereumWallet<ObjectId>> UpdateAsync(EthereumWallet<ObjectId> wallet, CancellationToken token = default)
+    {
+        return await Wallets.FindOneAndReplaceAsync(Builders<EthereumWallet<ObjectId>>.Filter.Eq(w => w.Id, wallet.Id), wallet,
+            options: new FindOneAndReplaceOptions<EthereumWallet<ObjectId>> { ReturnDocument = ReturnDocument.After },
+            cancellationToken:token);
+    }
 }

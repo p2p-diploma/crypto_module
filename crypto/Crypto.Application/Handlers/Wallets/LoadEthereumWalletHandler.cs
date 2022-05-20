@@ -9,12 +9,12 @@ using Nethereum.Web3.Accounts;
 using static BCrypt.Net.BCrypt;
 namespace Crypto.Application.Handlers.Wallets;
 
-public class LoadEthereumWalletHandler : WalletHandlerBase<LoadEthereumWalletCommand, CreatedEthereumWalletResponse, EthereumWallet<ObjectId>>
+public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumWalletCommand, CreatedEthereumWalletResponse>
 {
-    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _p2pWalletsRepository;
+    private readonly IEthereumP2PWalletsRepository<ObjectId> _p2pWalletsRepository;
     private readonly EthereumAccountManager _accountManager;
- public LoadEthereumWalletHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository,
-     EthereumAccountManager accountManager, IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2PWalletsRepository) : base(repository)
+ public LoadEthereumWalletHandler(IEthereumWalletsRepository<ObjectId> repository,
+     EthereumAccountManager accountManager, IEthereumP2PWalletsRepository<ObjectId> p2PWalletsRepository) : base(repository)
      {
          _accountManager = accountManager;
          _p2pWalletsRepository = p2PWalletsRepository;

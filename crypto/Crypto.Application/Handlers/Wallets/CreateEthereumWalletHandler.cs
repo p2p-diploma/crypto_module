@@ -9,11 +9,11 @@ using static BCrypt.Net.BCrypt;
 
 namespace Crypto.Application.Handlers.Wallets;
 
-public class CreateEthereumWalletHandler : WalletHandlerBase<CreateEthereumWalletCommand, CreatedEthereumWalletResponse, EthereumWallet<ObjectId>>
+public class CreateEthereumWalletHandler : EthereumWalletBaseHandler<CreateEthereumWalletCommand, CreatedEthereumWalletResponse>
 {
-    private readonly IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> _p2pWalletsRepository;
-    public CreateEthereumWalletHandler(IWalletsRepository<EthereumWallet<ObjectId>, ObjectId> repository, 
-        IWalletsRepository<EthereumP2PWallet<ObjectId>, ObjectId> p2PWalletsRepository) : base(repository)
+    private readonly IEthereumP2PWalletsRepository<ObjectId> _p2pWalletsRepository;
+    public CreateEthereumWalletHandler(IEthereumWalletsRepository<ObjectId> repository, 
+        IEthereumP2PWalletsRepository<ObjectId> p2PWalletsRepository) : base(repository)
     {
         _p2pWalletsRepository = p2PWalletsRepository;
     }

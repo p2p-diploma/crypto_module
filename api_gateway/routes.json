@@ -1,0 +1,405 @@
+﻿{
+  "Routes": [
+    //Wallets:Create and load wallet
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/create",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+        "Host": "wallets_server",
+        "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/create",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/load",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/load",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    //Wallets: Get Ethereum, ERC20 wallets
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/ethereum/{id}",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/{id}/p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/ethereum/{id}/p2p",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/email/{email}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/ethereum/email/{email}",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/email/{email}/p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/ethereum/email/{email}/p2p",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/erc20/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/erc20/{id}",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/erc20/{id}/p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/erc20/{id}/p2p",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/erc20/email/{email}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/erc20/email/{email}",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/erc20/email/{email}/p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/erc20/email/{email}/p2p",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    //Wallets: ERC20: edit amount to buy/sell
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/p2p/setToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/p2p/setToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/p2p/reduceToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/p2p/reduceToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/p2p/increaseToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/p2p/increaseToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/{id}/p2p/amountToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/{id}/p2p/setToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/p2p/setToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/p2p/setToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/p2p/reduceToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/p2p/reduceToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/p2p/increaseToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/p2p/increaseToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/{id}/p2p/amountToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/{id}/p2p/setToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    //Wallets: Ethereum: Edit amount to buy/sell
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/setToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/p2p/setToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/reduceToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/p2p/reduceToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/increaseToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/p2p/increaseToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/{id}/p2p/amountToBuy",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/{id}/p2p/setToBuy",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/setToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/p2p/setToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/reduceToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/p2p/reduceToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/increaseToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/p2p/increaseToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/{id}/p2p/amountToSell",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/{id}/p2p/setToSell",
+      "UpstreamHttpMethod": ["Put"]
+    },
+    //Crypto
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/transfer/to_p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/transfer/to_p2p",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/transfer/refund",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/transfer/refund",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/ethereum/transfer/from_p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/ethereum/transfer/from_p2p",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/transfer/to_p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/transfer/to_p2p",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/transfer/refund",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/transfer/refund",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/transfer/from_p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/transfer/from_p2p",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/erc20/transfer/from_p2p",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "crypto_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/erc20/transfer/from_p2p",
+      "UpstreamHttpMethod": ["Post"]
+    }
+  ]
+}

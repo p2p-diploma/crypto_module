@@ -2,8 +2,8 @@
 using Crypto.Application.Commands.Ethereum;
 using Crypto.Application.Responses;
 using Crypto.Domain.Exceptions;
+using Crypto.Server.Filters;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Crypto.Server.Controllers;
@@ -13,7 +13,7 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/erc20/transfer")]
-[Authorize(Roles = "user")]
+[RoleAuthorize("user")]
 public class ERC20TransferController : ControllerBase
 {
     private readonly IMediator _mediator;

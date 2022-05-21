@@ -9,11 +9,13 @@ using Crypto.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Wallets.Server.Filters;
 
 namespace Wallets.Server.Controllers;
 
 [ApiController]
 [Route("api/v1/wallets/erc20")]
+[RoleAuthorize("user")]
 public class ERC20WalletsController : ControllerBase
 {
     private readonly IMediator _mediator;

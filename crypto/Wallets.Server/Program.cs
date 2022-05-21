@@ -1,7 +1,5 @@
 global using static Crypto.Data.ObjectIdExtension;
-global using static Wallets.Server.TokenValidator;
 using System.Reflection;
-using System.Text;
 using Crypto.Application.Responses.ERC20;
 using Crypto.Application.Utils;
 using Crypto.Data.Configuration;
@@ -12,11 +10,9 @@ using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Wallets.Server.Middlewares;
 using Wallets.Server.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,6 +53,9 @@ builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuratio
 builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWalletsRepository>();
 builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
+#region Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts => { opts.RequireHttpsMetadata = false; });
+#endregion
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 #region Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -73,7 +72,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 #endregion
 var app = builder.Build();
-app.UseMiddleware<RequestLoggingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -81,7 +79,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-app.UseMiddleware<TokenValidateMiddleware>();
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

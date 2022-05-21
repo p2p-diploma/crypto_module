@@ -54,7 +54,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x3963ECb0ad3e0DDCde48a2f753C8fc7599197Bb9"
+      - "SmartContractSettings:TokenAddress=0x2AC86b2edFC815bCa9549099752024b8F181eEAB"
     depends_on:
       - crypto_database
       - ganache
@@ -73,7 +73,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x3963ECb0ad3e0DDCde48a2f753C8fc7599197Bb9"
+      - "SmartContractSettings:TokenAddress=0x2AC86b2edFC815bCa9549099752024b8F181eEAB"
     depends_on:
       - crypto_database
       - ganache
@@ -89,6 +89,7 @@ services:
     image: ${DOCKER_REGISTRY-}lot_service
     depends_on:
       - auth_db
+      - auth_server
     volumes:
       - ./lot_service/:/app
       - .:/lot_service

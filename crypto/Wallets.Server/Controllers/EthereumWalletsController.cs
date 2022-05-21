@@ -7,13 +7,14 @@ using Crypto.Application.Responses.Ethereum;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Wallets.Server.Filters;
 
 namespace Wallets.Server.Controllers;
 
 [ApiController]
 [Route("api/v1/wallets/eth")]
+[RoleAuthorize("user")]
 public class EthereumWalletsController : ControllerBase
 {
     private readonly IMediator _mediator;

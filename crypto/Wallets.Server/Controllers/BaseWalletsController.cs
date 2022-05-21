@@ -5,6 +5,8 @@ using Crypto.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Wallets.Server.Filters;
+
 namespace Wallets.Server.Controllers;
 
 /// <summary>
@@ -113,7 +115,7 @@ public class BaseWalletsController : ControllerBase
 
 
 
-
+    [RoleAuthorize("admin")]
     [HttpPut("freeze/{id}")]
     public async Task<IActionResult> FreezeWallet(string id, CancellationToken token)
     {

@@ -2,6 +2,7 @@
 using Crypto.Application.Responses;
 using Crypto.Domain.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Crypto.Server.Controllers;
@@ -9,7 +10,8 @@ namespace Crypto.Server.Controllers;
 /// Ethereum transfer operations
 /// </summary>
 [ApiController]
-[Route("/api/v1/ethereum/transfer")]
+[Route("/api/v1/eth/transfer")]
+[Authorize(Roles = "user")]
 public class EthereumTransferController : ControllerBase
 {
     private readonly IMediator _mediator;

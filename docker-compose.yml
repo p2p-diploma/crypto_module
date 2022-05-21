@@ -4,6 +4,7 @@ services:
 #For authorization service
   auth_server:
     platform: linux/amd64
+    container_name: auth_server
     build:
       context: auth_service
       dockerfile: ./Dockerfile
@@ -53,7 +54,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0xFCdB9A94Fe2d8559aD972Fcab4bf68266d68e0D0"
+      - "SmartContractSettings:TokenAddress=0x3963ECb0ad3e0DDCde48a2f753C8fc7599197Bb9"
     depends_on:
       - crypto_database
       - ganache
@@ -72,9 +73,24 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0xFCdB9A94Fe2d8559aD972Fcab4bf68266d68e0D0"
+      - "SmartContractSettings:TokenAddress=0x3963ECb0ad3e0DDCde48a2f753C8fc7599197Bb9"
     depends_on:
       - crypto_database
       - ganache
     ports:
       - "6227:80"
+
+  lot_server:
+    platform: linux/amd64
+    container_name: lot_server
+    build:
+      context: lot_service
+      dockerfile: ./Dockerfile
+    image: ${DOCKER_REGISTRY-}lot_service
+    depends_on:
+      - auth_db
+    volumes:
+      - ./lot_service/:/app
+      - .:/lot_service
+    ports:
+      - 8000:8000

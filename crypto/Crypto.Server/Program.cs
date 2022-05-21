@@ -1,15 +1,20 @@
 global using static Crypto.Data.ObjectIdExtension;
+global using static Crypto.Server.TokenValidator;
 using System.Reflection;
+using System.Text;
 using Crypto.Application.Responses.ERC20;
 using Crypto.Application.Utils;
 using Crypto.Data.Configuration;
 using Crypto.Data.Repositories;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Interfaces;
+using Crypto.Server;
 using Crypto.Server.Validators.Ethereum;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -54,6 +59,7 @@ builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWallets
 builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+#region Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -61,11 +67,14 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "Smart contracts interaction: Ethereum and ERC20 transfer API",
-        Description = "API for transferring Ethereum and ERC20 via smart contracts: block sum, transfer and revert transfer"
+        Description =
+            "API for transferring Ethereum and ERC20 via smart contracts: block sum, transfer and revert transfer"
     });
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
+#endregion
+
 
 var app = builder.Build();
 
@@ -77,5 +86,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<TokenValidateMiddleware>();
 app.MapControllers();
 app.Run();

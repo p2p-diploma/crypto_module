@@ -7,6 +7,7 @@ using Crypto.Application.Responses.ERC20;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Wallets.Server.Controllers;
@@ -16,7 +17,6 @@ namespace Wallets.Server.Controllers;
 public class ERC20WalletsController : ControllerBase
 {
     private readonly IMediator _mediator;
-
     public ERC20WalletsController(IMediator mediator)
     {
         _mediator = mediator;

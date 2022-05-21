@@ -7,12 +7,13 @@ using Crypto.Application.Responses.Ethereum;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Wallets.Server.Controllers;
 
 [ApiController]
-[Route("api/v1/wallets/ethereum")]
+[Route("api/v1/wallets/eth")]
 public class EthereumWalletsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -62,12 +63,13 @@ public class EthereumWalletsController : ControllerBase
             return StatusCode(500, e.Message);
         }
     }
-    
+
     /// <summary>
     /// Returns information about user's Ethereum wallet: Ethereum account's address, private key, and balance in Ether
     /// </summary>
     /// <param name="email">User's email</param>
     /// <param name="token"></param>
+    /// <param name="includeBalance">For Appeals service: to include only wallet's id for freezing</param>
     /// <returns>Wallet's information: address, private key, and balance in Ether</returns>
     /// <remarks>
     /// Sample request:
@@ -89,12 +91,13 @@ public class EthereumWalletsController : ControllerBase
     [HttpGet("email/{email}")]
     [ProducesResponseType(typeof(EthereumWalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
-    public async Task<IActionResult> GetEthereumWalletByEmail([EmailAddress] string email, CancellationToken token)
+    public async Task<IActionResult> GetEthereumWalletByEmail([EmailAddress] string email, CancellationToken token,
+        [FromQuery] bool includeBalance = true)
     {
         if (!ModelState.IsValid) return BadRequest("Email is invalid");
         try
         {
-            return Ok(await _mediator.Send(new GetEthereumWalletByEmailQuery(email), token));
+            return Ok(await _mediator.Send(new GetEthereumWalletByEmailQuery(email, includeBalance), token));
         }
         catch (AccountNotFoundException e)
         {

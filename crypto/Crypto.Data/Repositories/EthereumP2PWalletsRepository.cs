@@ -83,4 +83,12 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
             updateDefinition, options: new FindOneAndUpdateOptions<EthereumP2PWallet<ObjectId>>{ReturnDocument = ReturnDocument.After}, 
             cancellationToken: token);
     }
+
+    public async Task<bool> Freeze(ObjectId walletId)
+    {
+        var freezeDef = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true);
+        var result = await P2PWallets.UpdateOneAsync(Builders<EthereumP2PWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
+            freezeDef);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
 }

@@ -21,13 +21,22 @@ public class GetEthereumWalletByEmailHandler : EthereumWalletBaseHandler<GetEthe
     }
     public override async Task<EthereumWalletWithIdResponse> Handle(GetEthereumWalletByEmailQuery request, CancellationToken cancellationToken)
     {
-        var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, wallet => wallet, cancellationToken);
-        if (wallet == null || wallet.Id == ObjectId.Empty)
-            throw new AccountNotFoundException($"Wallet with email {request.Email} is not found");
-        var scryptService = new KeyStoreScryptService();
-        var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
-        var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
-        return new(wallet.Id.ToString(), balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
+        if (request.IncludeBalance)
+        {
+            var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, wallet => wallet,
+                cancellationToken);
+            if (wallet == null || wallet.Id == ObjectId.Empty)
+                throw new AccountNotFoundException($"Wallet with email {request.Email} is not found");
+            var scryptService = new KeyStoreScryptService();
+            var loadedAccount =
+                _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore),
+                    wallet.Hash);
+            var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
+            return new(wallet.Id.ToString(), balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
+        }
+        var walletWithNoBalance = await _repository
+            .FindOneAndProjectAsync(w => w.Email == request.Email, res => new EthereumWallet<ObjectId> { Id = res.Id }, cancellationToken);
+        return new(walletWithNoBalance.Id.ToString(), Decimal.Zero, "", "");
     }
 
     

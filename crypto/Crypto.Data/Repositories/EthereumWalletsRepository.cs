@@ -38,4 +38,12 @@ public class EthereumWalletsRepository : IEthereumWalletsRepository<ObjectId>
             options: new FindOneAndReplaceOptions<EthereumWallet<ObjectId>> { ReturnDocument = ReturnDocument.After },
             cancellationToken:token);
     }
+
+    public async Task<bool> Freeze(ObjectId walletId)
+    {
+        var freezeDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true);
+        var result = await Wallets.UpdateOneAsync(Builders<EthereumWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
+            freezeDef);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
 }

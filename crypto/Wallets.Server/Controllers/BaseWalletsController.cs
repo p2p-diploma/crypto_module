@@ -3,6 +3,7 @@ using Crypto.Application.Commands.Wallets.Buy;
 using Crypto.Application.Responses.Ethereum;
 using Crypto.Domain.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Wallets.Server.Controllers;
 
@@ -109,5 +110,16 @@ public class BaseWalletsController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-    
+
+
+
+
+    [HttpPut("freeze/{id}")]
+    public async Task<IActionResult> FreezeWallet(string id, CancellationToken token)
+    {
+        if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
+        var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(id), token);
+        if (allFrozen) return Ok("Wallets are successfully frozen");
+        return StatusCode(500, "Failed to freeze wallets");
+    }
 }

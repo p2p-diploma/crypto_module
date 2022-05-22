@@ -2,6 +2,6 @@
 
 public static class CurrencyType
 {
-    public const string ETHER = "ether";
+    public const string ETHER = "eth";
     public const string ERC20 = "erc20";
 }

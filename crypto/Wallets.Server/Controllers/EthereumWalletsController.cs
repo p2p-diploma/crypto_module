@@ -244,7 +244,6 @@ public class EthereumWalletsController : ControllerBase
         }
     }
     
-    
     [HttpPut("p2p/increaseToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]

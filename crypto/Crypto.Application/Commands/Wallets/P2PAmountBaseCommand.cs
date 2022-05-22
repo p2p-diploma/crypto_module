@@ -9,3 +9,9 @@ public record P2PAmountBaseCommand
     [JsonIgnore]
     public string CurrencyType { get; set; } = string.Empty;
 }
+
+/*
+    "walletId": "",
+    "amount": 0,
+    "currencyType": "eth/erc20"
+*/

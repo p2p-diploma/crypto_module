@@ -95,3 +95,26 @@ services:
       - .:/lot_service
     ports:
       - 8000:8000
+
+  chat_database:
+    image: redis
+    container_name: chat_database
+    restart: always
+    ports:
+      - "5379:6379"
+
+  chat_server:
+    image: chat_server
+    container_name: chat_server
+    build:
+      context: chat_service
+      dockerfile: ./Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "ConnectionStrings:Redis=chat_database"
+    depends_on:
+      - chat_database
+    ports:
+      - 7227:80
+    

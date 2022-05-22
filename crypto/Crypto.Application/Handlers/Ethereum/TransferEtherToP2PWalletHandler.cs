@@ -2,6 +2,7 @@
 using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses;
 using Crypto.Application.Utils;
+using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
 using MongoDB.Bson;
@@ -24,6 +25,7 @@ public class TransferEtherToP2PWalletHandler : EthereumWalletBaseHandler<Transfe
     {
         var userId = ObjectId.Parse(request.WalletId);
         var userWallet = await _repository.FindOneAndProjectAsync(w => w.Id == userId, wallet => wallet, cancellationToken);
+        if (userWallet.IsFrozen) throw new AccountFrozenException();
         if (userWallet == null || userWallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Wallet with id {request.WalletId} does not exist");
         

@@ -3,6 +3,7 @@ using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses;
 using Crypto.Application.Utils;
 using Crypto.Domain.Configuration;
+using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
 using MongoDB.Bson;
@@ -29,10 +30,12 @@ public class TransferERC20ToP2PWalletHandler : EthereumWalletBaseHandler<Transfe
     {
         var userId = ObjectId.Parse(request.WalletId);
         var userWallet = await _repository.FindOneAndProjectAsync(w => w.Id == userId, wallet => wallet, token);
+        if (userWallet.IsFrozen) throw new AccountFrozenException();
         if (userWallet == null || userWallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Wallet with id {request.WalletId} does not exist");
         var scryptService = new KeyStoreScryptService();
         var p2pWallet = await _p2pWalletsRepository.FindOneAndProjectAsync(w => w.Id == userId, wallet => wallet, token);
+        if (p2pWallet.IsFrozen) throw new AccountFrozenException();
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(userWallet.KeyStore), userWallet.Hash);
         return await _accountManager.Transfer(p2pWallet.KeyStore.Address, request.Amount, account, token);
     }

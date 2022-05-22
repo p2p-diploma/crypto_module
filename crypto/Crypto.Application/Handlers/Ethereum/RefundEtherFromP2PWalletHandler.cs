@@ -26,10 +26,12 @@ public class RefundEtherFromP2PWalletHandler : EthereumP2PWalletBaseHandler<Refu
     {
         var userId = ObjectId.Parse(request.WalletId);
         var p2pWallet = await _repository.FindOneAndProjectAsync(w => w.Id == userId,wallet => wallet, cancellationToken);
+        if (p2pWallet.IsFrozen) throw new AccountFrozenException();
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         
         var userWallet = await _platformWalletsRepository.FindOneAndProjectAsync(w => w.Id == userId,wallet => wallet, cancellationToken);
+        if (userWallet.IsFrozen) throw new AccountFrozenException();
         var scryptService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(p2pWallet.KeyStore), p2pWallet.Hash);
         return await _accountManager.Transfer(userWallet.KeyStore.Address, request.Amount, account, cancellationToken);

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using Crypto.Application.Commands.Wallets.Buy;
 using Crypto.Application.Commands.Wallets.Sell;
 using Crypto.Application.Queries;
@@ -11,7 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 using Wallets.Server.Filters;
 
 namespace Wallets.Server.Controllers;
-
+/// <summary>
+/// Controller for getting eth wallets and setting amount to sell and buy.
+/// </summary>
 [ApiController]
 [Route("api/v1/wallets/eth")]
 [RoleAuthorize("user")]
@@ -22,6 +25,44 @@ public class EthereumWalletsController : ControllerBase
     {
         _mediator = mediator;
     }
+
+    [HttpGet("{id}/privateKey")]
+    public async Task<IActionResult> GetWalletPrivateKey(string id,
+        [FromHeader(Name = "Authorization")] string access_token, CancellationToken token)
+    {
+        if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
+        access_token = access_token.Split(' ').Last();
+        if (!TryGetEmailFromToken(access_token, out var email)) return Unauthorized();
+        try
+        {
+            var privateKey = await _mediator.Send(new GetPrivateKeyQuery(id, email), token);
+            return Ok(privateKey);
+        }
+        catch (PermissionDeniedException e)
+        {
+            return Unauthorized(e.Message);
+        }
+        catch (AccountFrozenException e)
+        {
+            return Unauthorized(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+    }
+
+    private static bool TryGetEmailFromToken(string token, out string email)
+    {
+        if (string.IsNullOrEmpty(token)) { email = ""; return false; }
+        var handler = new JwtSecurityTokenHandler();
+        if (!handler.CanReadToken(token)) { email = ""; return false; }
+        var user = handler.ReadJwtToken(token);
+        var matchEmail = user.Claims.FirstOrDefault(x => x.Type == "user_id")?.Value;
+        if (string.IsNullOrEmpty(matchEmail)) { email = ""; return false; }
+        email = matchEmail;
+        return true;
+    }
     /// <summary>
     /// Returns information about user's Ethereum wallet: Ethereum account's address, private key, and balance in Ether
     /// </summary>
@@ -30,13 +71,12 @@ public class EthereumWalletsController : ControllerBase
     /// <returns>Wallet's information: address, private key, and balance in Ether</returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /ethereum/6277d227108472b96eee5e56
+    ///     GET /eth/6277d227108472b96eee5e56
     /// 
     /// Sample response:
     /// 
     ///     {
     ///         "balance": 95.58789490,
-    ///         "privateKey": "e13461ef741ab5f0367707d7f0e539b11c2957888888727a8da26e9e60a9a19f",
     ///         "address": "0xD2BE74365557b91070405d5007ed2922996CC5da"
     ///     }
     /// 
@@ -74,13 +114,12 @@ public class EthereumWalletsController : ControllerBase
     /// <returns>Wallet's information: address, private key, and balance in Ether</returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /ethereum/email={email}
+    ///     GET /eth/email={email}
     /// 
     /// Sample response:
     /// 
     ///     {
     ///         "balance": 95.58789490,
-    ///         "privateKey": "e13461ef741ab5f0367707d7f0e539b11c2957888888727a8da26e9e60a9a19f",
     ///         "address": "0xD2BE74365557b91070405d5007ed2922996CC5da"
     ///     }
     /// 
@@ -118,7 +157,7 @@ public class EthereumWalletsController : ControllerBase
     /// <returns>P2P wallet's information: address, and balance in Ether</returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /ethereum/6277d227108472b96eee5e56/p2p
+    ///     GET /eth/6277d227108472b96eee5e56/p2p
     /// 
     /// Sample response:
     /// 
@@ -161,7 +200,7 @@ public class EthereumWalletsController : ControllerBase
     /// <returns>P2P wallet's information: address, and balance in Ether</returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /ethereum/email={email}/p2p
+    ///     GET /eth/email={email}/p2p
     /// 
     /// Sample response:
     /// 
@@ -196,6 +235,28 @@ public class EthereumWalletsController : ControllerBase
     }
     
     
+    /// <summary>
+    /// For lots: set amount of ether to buy in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of ether</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of setting amount to buy</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /eth/p2p/setToBuy
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to buy is set</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not set due to server error</response>
     [HttpPut("p2p/setToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -220,6 +281,29 @@ public class EthereumWalletsController : ControllerBase
         }
     }
     
+    
+    /// <summary>
+    /// For lots: reduce amount of ether to buy in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of ether</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of reducing amount to buy</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /eth/p2p/reduceToBuy
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to buy is reduced</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not reduced due to server error</response>
     [HttpPut("p2p/reduceToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -244,6 +328,28 @@ public class EthereumWalletsController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// For lots: increase amount of ether to buy in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of ether</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of increased amount to buy</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /eth/p2p/increaseToBuy
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to buy is increased</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not increased due to server error</response>
     [HttpPut("p2p/increaseToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -269,6 +375,16 @@ public class EthereumWalletsController : ControllerBase
     }
     
     
+    /// <summary>
+    /// For lots: get amount to buy in lot
+    /// </summary>
+    /// <param name="id">Wallet id</param>
+    /// <param name="token"></param>
+    /// <returns>Amount to buy in ether</returns>
+    /// <response code="200">Amount to buy</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not reduced due to server error</response>
     [HttpGet("{id}/p2p/amountToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -298,6 +414,28 @@ public class EthereumWalletsController : ControllerBase
     
     
     
+    /// <summary>
+    /// For lots: set amount of ether to sell in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of ether</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of setting amount to sell</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /eth/p2p/setToSell
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to sell is set</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not set due to server error</response>
     [HttpPut("p2p/setToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -322,6 +460,28 @@ public class EthereumWalletsController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// For lots: reduce amount of ether to sell in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of ether</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of reducing amount to sell</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /eth/p2p/reduceToSell
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to sell is reduced</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not reduced due to server error</response>
     [HttpPut("p2p/reduceToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -346,7 +506,28 @@ public class EthereumWalletsController : ControllerBase
         }
     }
     
-    
+    /// <summary>
+    /// For lots: increase amount of ether to sell in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of ether</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of increased amount to sell</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /eth/p2p/increaseToSell
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to sell is increased</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not increased due to server error</response>
     [HttpPut("p2p/increaseToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -372,6 +553,16 @@ public class EthereumWalletsController : ControllerBase
     }
     
     
+    /// <summary>
+    /// For lots: get amount to sell in lot
+    /// </summary>
+    /// <param name="id">Wallet id</param>
+    /// <param name="token"></param>
+    /// <returns>Amount to sell in ether</returns>
+    /// <response code="200">Amount to sell</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not reduced due to server error</response>
     [HttpGet("{id}/p2p/amountToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]

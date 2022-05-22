@@ -28,7 +28,7 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
         return wallet;
     }
 
-    public async Task<TProjection> FindOneAndProjectAsync<TProjection>(Expression<Func<EthereumP2PWallet<ObjectId>, bool>> expr, 
+    public async Task<TProjection?> FindOneAndProjectAsync<TProjection>(Expression<Func<EthereumP2PWallet<ObjectId>, bool>> expr, 
         Expression<Func<EthereumP2PWallet<ObjectId>, TProjection>> projection, CancellationToken token = default)
         => await P2PWallets.AsQueryable().Where(expr).Select(projection).FirstOrDefaultAsync(token);
 

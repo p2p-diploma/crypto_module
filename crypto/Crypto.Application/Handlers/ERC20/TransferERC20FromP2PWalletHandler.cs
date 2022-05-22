@@ -24,6 +24,7 @@ public class TransferERC20FromP2PWalletHandler : EthereumP2PWalletBaseHandler<Tr
     {
         var parsedId = ObjectId.Parse(request.WalletId);
         var p2pWallet = await _repository.FindOneAndProjectAsync(w => w.Id == parsedId, wallet => wallet, cancellationToken);
+        if (p2pWallet == null) throw new AccountNotFoundException($"P2P wallet with id {parsedId} is not found");
         if (p2pWallet.IsFrozen) throw new AccountFrozenException();
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");

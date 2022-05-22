@@ -194,6 +194,28 @@ public class ERC20WalletsController : ControllerBase
     
     
     
+    /// <summary>
+    /// For lots: set amount of erc20 tokens to buy in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of erc20 tokens</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of setting amount to buy</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /erc20/p2p/setToBuy
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to buy is set</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not set due to server error</response>
     [HttpPut("p2p/setToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -218,6 +240,28 @@ public class ERC20WalletsController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// For lots: reduce amount of erc20 to buy in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of erc20</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of reducing amount to buy</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /erc20/p2p/reduceToBuy
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to buy is reduced</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not reduced due to server error</response>
     [HttpPut("p2p/reduceToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -242,7 +286,28 @@ public class ERC20WalletsController : ControllerBase
         }
     }
     
-    
+    /// <summary>
+    /// For lots: increase amount of erc20 to buy in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of erc20</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of increased amount to buy</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /erc20/p2p/increaseToBuy
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to buy is increased</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not increased due to server error</response>
     [HttpPut("p2p/increaseToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -267,7 +332,16 @@ public class ERC20WalletsController : ControllerBase
         }
     }
     
-    
+    /// <summary>
+    /// For lots: get amount to buy in lot
+    /// </summary>
+    /// <param name="id">Wallet id</param>
+    /// <param name="token"></param>
+    /// <returns>Amount to buy in erc20 tokens</returns>
+    /// <response code="200">Amount to buy</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to buy is not reduced due to server error</response>
     [HttpGet("{id}/p2p/amountToBuy")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -295,7 +369,28 @@ public class ERC20WalletsController : ControllerBase
     }
     
     
-    
+    /// <summary>
+    /// For lots: set amount of erc20 to sell in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of erc20</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of setting amount to sell</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /erc20/p2p/setToSell
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to sell is set</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not set due to server error</response>
     [HttpPut("p2p/setToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -320,6 +415,28 @@ public class ERC20WalletsController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// For lots: reduce amount of erc20 to sell in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of erc20</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of reducing amount to sell</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /erc20/p2p/reduceToSell
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to sell is reduced</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not reduced due to server error</response>
     [HttpPut("p2p/reduceToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -344,7 +461,28 @@ public class ERC20WalletsController : ControllerBase
         }
     }
     
-    
+    /// <summary>
+    /// For lots: increase amount of erc20 to sell in lot. This is the copy of balance in real wallet.
+    /// </summary>
+    /// <param name="command">Wallet id and amount of erc20</param>
+    /// <param name="token"></param>
+    /// <returns>Status code of increased amount to sell</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /erc20/p2p/increaseToSell
+    /// 
+    /// Sample request:
+    /// 
+    ///     {
+    ///         "walletId": "",
+    ///         "amount": 95.695
+    ///     }
+    /// 
+    /// </remarks>
+    /// <response code="200">When amount to sell is increased</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not increased due to server error</response>
     [HttpPut("p2p/increaseToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
@@ -369,7 +507,16 @@ public class ERC20WalletsController : ControllerBase
         }
     }
     
-    
+    /// <summary>
+    /// For lots: get amount to sell in lot
+    /// </summary>
+    /// <param name="id">Wallet id</param>
+    /// <param name="token"></param>
+    /// <returns>Amount to sell in erc20 tokens</returns>
+    /// <response code="200">Amount to sell</response>
+    /// <response code="400">When wallet id is invalid or amount is not greater than 0</response>
+    /// <response code="404">When wallet is not found</response>
+    /// <response code="500">When amount to sell is not reduced due to server error</response>
     [HttpGet("{id}/p2p/amountToSell")]
     [ProducesResponseType(typeof(decimal), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]

@@ -5,7 +5,6 @@ using Crypto.Application.Utils;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
-using MediatR;
 using MongoDB.Bson;
 using Nethereum.KeyStore;
 
@@ -32,11 +31,13 @@ public class GetEthereumWalletByEmailHandler : EthereumWalletBaseHandler<GetEthe
                 _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore),
                     wallet.Hash);
             var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
-            return new(wallet.Id.ToString(), balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
+            return new(wallet.Id.ToString(), balanceInEther, loadedAccount.Address);
         }
         var walletWithNoBalance = await _repository
             .FindOneAndProjectAsync(w => w.Email == request.Email, res => new EthereumWallet<ObjectId> { Id = res.Id }, cancellationToken);
-        return new(walletWithNoBalance.Id.ToString(), Decimal.Zero, "", "");
+        if (walletWithNoBalance == null || walletWithNoBalance.Id == ObjectId.Empty)
+            throw new AccountNotFoundException($"Wallet with email {request.Email} is not found");
+        return new(walletWithNoBalance.Id.ToString(), decimal.Zero, "");
     }
 
     

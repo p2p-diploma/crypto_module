@@ -26,6 +26,7 @@ public class RefundERC20FromP2PWalletHandler : EthereumP2PWalletBaseHandler<Refu
     {
         var userId = ObjectId.Parse(request.WalletId);
         var p2pWallet = await _repository.FindOneAndProjectAsync(w => w.Id == userId, wallet => wallet, cancellationToken);
+        if (p2pWallet == null) throw new AccountNotFoundException($"P2P wallet with id {userId} is not found");
         if (p2pWallet.IsFrozen) throw new AccountFrozenException();
         if (p2pWallet == null || p2pWallet.Id == ObjectId.Empty) 
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");

@@ -27,7 +27,7 @@ public class GetEthereumWalletByIdHandler : EthereumWalletBaseHandler<GetEthereu
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
-        return new EthereumWalletResponse(balanceInEther, loadedAccount.Address, loadedAccount.PrivateKey);
+        return new EthereumWalletResponse(balanceInEther, loadedAccount.Address);
     }
 
     

@@ -114,9 +114,22 @@ public class BaseWalletsController : ControllerBase
     }
 
 
-
+    /// <summary>
+    /// Freeze Ethereum and ERC20 wallets of user
+    /// </summary>
+    /// <param name="id">User wallet's id</param>
+    /// <param name="token"></param>
+    /// <returns>Status code whether the wallets are frozen or not</returns>
+    /// <remarks>
+    /// WARNING: only admin has permission to freeze accounts
+    /// 
+    /// </remarks>
+    /// <response code="200">Wallets are successfully frozen</response>
+    /// <response code="400">When wallet id is invalid</response>
+    /// <response code="500">When user's wallet cannot be loaded due to some error</response>
     [RoleAuthorize("admin")]
     [HttpPut("freeze/{id}")]
+    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401), ProducesResponseType(500)]
     public async Task<IActionResult> FreezeWallet(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");

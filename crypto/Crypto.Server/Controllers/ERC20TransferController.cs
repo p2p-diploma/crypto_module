@@ -1,6 +1,7 @@
 ﻿using Crypto.Application.Commands.ERC20;
 using Crypto.Application.Commands.Ethereum;
 using Crypto.Application.Responses;
+using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using Crypto.Server.Filters;
 using MediatR;
@@ -13,7 +14,7 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/erc20/transfer")]
-[RoleAuthorize("user")]
+[TokenAuthorize(Roles.USER)]
 public class ERC20TransferController : ControllerBase
 {
     private readonly IMediator _mediator;

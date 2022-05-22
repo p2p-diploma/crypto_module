@@ -8,19 +8,19 @@ namespace AppealService.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-[RoleAuthorize("admin")]
+[TokenAuthorize("A")]
 public class AppealsController : ControllerBase
 {
     private readonly AppealsService _service;
     private readonly IWebHostEnvironment _env;
-    public AppealsController(AppealsService service, IWebHostEnvironment env, NotificationService notificationService)
+    public AppealsController(AppealsService service, IWebHostEnvironment env)
     {
         _service = service;
         _env = env;
     }
 
     [HttpPost]
-    [RoleAuthorize("user")]
+    [TokenAuthorize("U")]
     public async Task<IActionResult> CreateAppeal([FromBody] CreateAppealDto appeal, [FromHeader(Name = "Bearer")] string accessToken,
         IFormFile? receipt, CancellationToken token)
     {

@@ -17,7 +17,7 @@ namespace Wallets.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/wallets/eth")]
-[RoleAuthorize("user")]
+[TokenAuthorize(Roles.USER)]
 public class EthereumWalletsController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -18,7 +18,7 @@ builder.Services.AddScoped<AppealsService>();
 builder.Services.AddTransient<UsersApi>();
 builder.Services.AddTransient<WalletsApi>();
 builder.Services.AddTransient<NotificationService>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts => { opts.RequireHttpsMetadata = false; });
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts => { opts.RequireHttpsMetadata = false; });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

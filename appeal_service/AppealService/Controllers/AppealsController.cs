@@ -8,7 +8,7 @@ namespace AppealService.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-[TokenAuthorize("A")]
+//[TokenAuthorize("A")]
 public class AppealsController : ControllerBase
 {
     private readonly AppealsService _service;
@@ -20,7 +20,7 @@ public class AppealsController : ControllerBase
     }
 
     [HttpPost]
-    [TokenAuthorize("U")]
+    //[TokenAuthorize("U")]
     public async Task<IActionResult> CreateAppeal([FromBody] CreateAppealDto appeal, [FromHeader(Name = "Bearer")] string accessToken,
         IFormFile? receipt, CancellationToken token)
     {

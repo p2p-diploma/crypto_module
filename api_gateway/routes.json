@@ -23,11 +23,26 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/load",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/wallets/freeze/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "wallets_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/wallets/freeze/{id}",
       "UpstreamHttpMethod": ["Post"]
     },
     //Wallets: Get Ethereum, ERC20 wallets
     {
-      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/{id}",
+      "DownstreamPathTemplate": "/api/v1/wallets/eth/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -35,11 +50,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/wallets/ethereum/{id}",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamPathTemplate": "/wallets/eth/{id}",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/{id}/p2p",
+      "DownstreamPathTemplate": "/api/v1/wallets/eth/{id}/p2p",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -47,11 +65,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/wallets/ethereum/{id}/p2p",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamPathTemplate": "/wallets/eth/{id}/p2p",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/email/{email}",
+      "DownstreamPathTemplate": "/api/v1/wallets/eth/email/{email}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -59,11 +80,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/wallets/ethereum/email/{email}",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamPathTemplate": "/wallets/eth/email/{email}",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/wallets/ethereum/email/{email}/p2p",
+      "DownstreamPathTemplate": "/api/v1/wallets/eth/email/{email}/p2p",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -71,8 +95,11 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/wallets/ethereum/email/{email}/p2p",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamPathTemplate": "/wallets/eth/email/{email}/p2p",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/wallets/erc20/{id}",
@@ -84,7 +111,10 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/erc20/{id}",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/wallets/erc20/{id}/p2p",
@@ -96,7 +126,10 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/erc20/{id}/p2p",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/wallets/erc20/email/{email}",
@@ -108,7 +141,10 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/erc20/email/{email}",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/wallets/erc20/email/{email}/p2p",
@@ -120,7 +156,10 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/erc20/email/{email}/p2p",
-      "UpstreamHttpMethod": ["Get"]
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     //Wallets: ERC20: edit amount to buy/sell
     {
@@ -133,7 +172,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/p2p/setToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/p2p/reduceToBuy",
@@ -145,7 +187,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/p2p/reduceToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/p2p/increaseToBuy",
@@ -157,7 +202,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/p2p/increaseToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/{id}/p2p/amountToBuy",
@@ -169,7 +217,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/{id}/p2p/setToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/p2p/setToSell",
@@ -181,7 +232,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/p2p/setToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/p2p/reduceToSell",
@@ -193,7 +247,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/p2p/reduceToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/p2p/increaseToSell",
@@ -205,7 +262,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/p2p/increaseToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/{id}/p2p/amountToSell",
@@ -217,11 +277,14 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/{id}/p2p/setToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     //Wallets: Ethereum: Edit amount to buy/sell
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/setToBuy",
+      "DownstreamPathTemplate": "/api/v1/eth/p2p/setToBuy",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -229,11 +292,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/p2p/setToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/p2p/setToBuy",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/reduceToBuy",
+      "DownstreamPathTemplate": "/api/v1/eth/p2p/reduceToBuy",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -241,11 +307,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/p2p/reduceToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/p2p/reduceToBuy",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/increaseToBuy",
+      "DownstreamPathTemplate": "/api/v1/eth/p2p/increaseToBuy",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -253,11 +322,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/p2p/increaseToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/p2p/increaseToBuy",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/{id}/p2p/amountToBuy",
+      "DownstreamPathTemplate": "/api/v1/eth/{id}/p2p/amountToBuy",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -265,11 +337,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/{id}/p2p/setToBuy",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/{id}/p2p/setToBuy",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/setToSell",
+      "DownstreamPathTemplate": "/api/v1/eth/p2p/setToSell",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -277,11 +352,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/p2p/setToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/p2p/setToSell",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/reduceToSell",
+      "DownstreamPathTemplate": "/api/v1/eth/p2p/reduceToSell",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -289,11 +367,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/p2p/reduceToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/p2p/reduceToSell",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/p2p/increaseToSell",
+      "DownstreamPathTemplate": "/api/v1/eth/p2p/increaseToSell",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -301,11 +382,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/p2p/increaseToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/p2p/increaseToSell",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/{id}/p2p/amountToSell",
+      "DownstreamPathTemplate": "/api/v1/eth/{id}/p2p/amountToSell",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -313,12 +397,15 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/{id}/p2p/setToSell",
-      "UpstreamHttpMethod": ["Put"]
+      "UpstreamPathTemplate": "/eth/{id}/p2p/setToSell",
+      "UpstreamHttpMethod": ["Put"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     //Crypto
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/transfer/to_p2p",
+      "DownstreamPathTemplate": "/api/v1/eth/transfer/to_p2p",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -326,11 +413,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/transfer/to_p2p",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamPathTemplate": "/eth/transfer/to_p2p",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/transfer/refund",
+      "DownstreamPathTemplate": "/api/v1/eth/transfer/refund",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -338,11 +428,14 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/transfer/refund",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamPathTemplate": "/eth/transfer/refund",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
-      "DownstreamPathTemplate": "/api/v1/ethereum/transfer/from_p2p",
+      "DownstreamPathTemplate": "/api/v1/eth/transfer/from_p2p",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -350,8 +443,11 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/ethereum/transfer/from_p2p",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamPathTemplate": "/eth/transfer/from_p2p",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/transfer/to_p2p",
@@ -363,7 +459,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/transfer/to_p2p",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/transfer/refund",
@@ -375,7 +474,10 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/transfer/refund",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/v1/erc20/transfer/from_p2p",
@@ -387,19 +489,245 @@
         }
       ],
       "UpstreamPathTemplate": "/erc20/transfer/from_p2p",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     },
+    //Appeals
     {
-      "DownstreamPathTemplate": "/api/v1/erc20/transfer/from_p2p",
+      "DownstreamPathTemplate": "/api/v1/appeals",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "crypto_server",
+          "Host": "appeals_server",
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/erc20/transfer/from_p2p",
+      "UpstreamPathTemplate": "/appeals",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/appeals",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "appeals_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/appeals",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/appeals/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "appeals_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/appeals/{id}",
+      "UpstreamHttpMethod": ["Get", "Delete"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/appeals/receipt/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "appeals_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/appeals/receipt/{id}",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/appeals/freeze/{email}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "appeals_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/appeals/freeze/{email}",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
+    },
+//Chat service
+    {
+      "DownstreamPathTemplate": "/chat",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "chat_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/chat",
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+//Auth service
+    {
+      "DownstreamPathTemplate": "/api/v1/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "auth_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/signup",
       "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/login",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "auth_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/login",
+      "UpstreamHttpMethod": ["Post"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/{email}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "auth_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{email}",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/refresh",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "auth_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/refresh",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/revoke",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "auth_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/revoke",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    //Lot service
+    {
+      "DownstreamPathTemplate": "/api/lot",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "lot_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/lot",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lot",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "lot_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/lot",
+      "UpstreamHttpMethod": ["Get"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/lot/detail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "lot_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/lot/detail",
+      "UpstreamHttpMethod": ["Get", "Delete"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    //Payments
+    {
+      "DownstreamPathTemplate": "/api/payment/detail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "lot_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/payment/detail",
+      "UpstreamHttpMethod": ["Get", "Delete"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/payment",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "lot_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/payment",
+      "UpstreamHttpMethod": ["get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
     }
   ]
 }

@@ -12,7 +12,7 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/eth/transfer")]
-[TokenAuthorize(Roles.USER)]
+//[TokenAuthorize(Roles.USER)]
 public class EthereumTransferController : ControllerBase
 {
     private readonly IMediator _mediator;

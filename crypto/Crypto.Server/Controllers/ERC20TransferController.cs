@@ -14,7 +14,7 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/erc20/transfer")]
-[TokenAuthorize(Roles.USER)]
+//[TokenAuthorize(Roles.USER)]
 public class ERC20TransferController : ControllerBase
 {
     private readonly IMediator _mediator;

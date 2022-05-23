@@ -17,9 +17,9 @@ public class UsersApi : BaseHttpClientFactory
         _builder.AddToPath(_settings.AuthPath);
     }
 
-    public async Task<User?> GetByEmail(string Email, string accessToken, CancellationToken token)
+    public async Task<User?> GetByEmail(string email, string accessToken, CancellationToken token)
     {
-        using var message = _builder.HttpMethod(HttpMethod.Get).AddToPath($"/{Email}").Headers(h =>
+        using var message = _builder.HttpMethod(HttpMethod.Get).AddToPath($"/{email}").Headers(h =>
         {
             h.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }).HttpMessage;

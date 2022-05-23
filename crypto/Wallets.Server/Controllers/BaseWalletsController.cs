@@ -128,7 +128,7 @@ public class BaseWalletsController : ControllerBase
     /// <response code="200">Wallets are successfully frozen</response>
     /// <response code="400">When wallet id is invalid</response>
     /// <response code="500">When user's wallet cannot be loaded due to some error</response>
-    [TokenAuthorize(Roles.ADMIN)]
+    //[TokenAuthorize(Roles.ADMIN)]
     [HttpPut("freeze/{id}")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401), ProducesResponseType(500)]
     public async Task<IActionResult> FreezeWallet(string id, CancellationToken token)

@@ -14,12 +14,15 @@ builder.Services.AddSignalR();
 ConnectionMultiplexer.Connect(builder.Configuration["ConnectionStrings:Redis"]).GetDatabase().StringSet("a", "b");
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration["ConnectionStrings:Redis"]));
 #endregion
+string path = builder.Configuration["ApiGateway"];
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
-app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseCors(b =>
+{
+    b.WithOrigins(path).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+});
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chat");

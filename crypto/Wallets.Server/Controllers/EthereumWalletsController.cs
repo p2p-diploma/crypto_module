@@ -17,7 +17,7 @@ namespace Wallets.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/wallets/eth")]
-[TokenAuthorize(Roles.USER)]
+//[TokenAuthorize(Roles.USER)]
 public class EthereumWalletsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -27,11 +27,10 @@ public class EthereumWalletsController : ControllerBase
     }
 
     [HttpGet("{id}/privateKey")]
-    public async Task<IActionResult> GetWalletPrivateKey(string id,
-        [FromHeader(Name = "Authorization")] string access_token, CancellationToken token)
+    public async Task<IActionResult> GetWalletPrivateKey(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        access_token = access_token.Split(' ').Last();
+        string? access_token = HttpContext.Request.Cookies["jwt-access"]?.Split(' ').Last();
         if (!TryGetEmailFromToken(access_token, out var email)) return Unauthorized();
         try
         {
@@ -52,7 +51,7 @@ public class EthereumWalletsController : ControllerBase
         }
     }
 
-    private static bool TryGetEmailFromToken(string token, out string email)
+    private static bool TryGetEmailFromToken(string? token, out string email)
     {
         if (string.IsNullOrEmpty(token)) { email = ""; return false; }
         var handler = new JwtSecurityTokenHandler();

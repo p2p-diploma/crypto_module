@@ -55,7 +55,7 @@ builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWallets
 builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
 #region Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts => { opts.RequireHttpsMetadata = false; });
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts => { opts.RequireHttpsMetadata = false; });
 #endregion
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 #region Swagger

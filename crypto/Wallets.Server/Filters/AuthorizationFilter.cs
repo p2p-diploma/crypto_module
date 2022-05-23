@@ -16,7 +16,6 @@ public class AuthorizationFilter : ActionFilterAttribute, IAuthorizationFilter
     public void OnAuthorization(AuthorizationFilterContext context)
     {
         string? access_token = context.HttpContext.Request.Cookies["jwt-access"];
-
         if (string.IsNullOrEmpty(access_token)) { context.Result = new ChallengeResult(); return; }
         var handler = new JwtSecurityTokenHandler();
         if (!handler.CanReadToken(access_token)) { context.Result = new ChallengeResult(); return; }

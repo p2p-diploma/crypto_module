@@ -18,4 +18,10 @@ public class ChatHub : Hub
     {
         await db.StringSetAsync(Context.ConnectionId, lotId).ContinueWith(_ => Groups.AddToGroupAsync(Context.ConnectionId, lotId));
     }
+
+    public async Task EndChat(string lotId)
+    {
+        await db.KeyDeleteAsync(Context.ConnectionId)
+            .ContinueWith(_ => Groups.RemoveFromGroupAsync(Context.ConnectionId, lotId));
+    }
 }

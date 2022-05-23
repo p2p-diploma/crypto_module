@@ -15,7 +15,7 @@ namespace Wallets.Server.Controllers;
 
 [ApiController]
 [Route("api/v1/wallets/erc20")]
-[TokenAuthorize(Roles.USER)]
+//[TokenAuthorize(Roles.USER)]
 public class ERC20WalletsController : ControllerBase
 {
     private readonly IMediator _mediator;

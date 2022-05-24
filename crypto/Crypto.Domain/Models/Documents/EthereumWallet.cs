@@ -1,7 +1,7 @@
-﻿using Crypto.Domain.Models.Base;
+﻿using Crypto.Domain.Models.Documents.Base;
 using Nethereum.KeyStore.Model;
 
-namespace Crypto.Domain.Models;
+namespace Crypto.Domain.Models.Documents;
 public record EthereumWallet<TId> : IWallet<TId> {
     public TId Id { get; set; }
     public string Email { get; set; }

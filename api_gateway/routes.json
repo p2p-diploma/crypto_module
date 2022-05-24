@@ -23,10 +23,7 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/load",
-      "UpstreamHttpMethod": ["Post"],
-      "UpstreamHeaderTransform": {
-        "Role": "A"
-      }
+      "UpstreamHttpMethod": ["Post"]
     },
     {
       "DownstreamPathTemplate": "/api/v1/wallets/freeze/{id}",
@@ -38,7 +35,10 @@
         }
       ],
       "UpstreamPathTemplate": "/wallets/freeze/{id}",
-      "UpstreamHttpMethod": ["Post"]
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "A"
+      }
     },
     //Wallets: Get Ethereum, ERC20 wallets
     {
@@ -592,7 +592,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "auth_server",
-          "Port": 80
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/signup",
@@ -604,7 +604,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "auth_server",
-          "Port": 80
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/login",
@@ -616,7 +616,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "auth_server",
-          "Port": 80
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/users/{email}",
@@ -631,7 +631,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "auth_server",
-          "Port": 80
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/refresh",
@@ -646,23 +646,23 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "auth_server",
-          "Port": 80
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/revoke",
-      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHttpMethod": ["Post"],
       "UpstreamHeaderTransform": {
         "Role": "U"
       }
     },
     //Lot service
     {
-      "DownstreamPathTemplate": "/api/lot",
+      "DownstreamPathTemplate": "/api/lot/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "lot_server",
-          "Port": 80
+          "Host": "lotserver",
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/lot",
@@ -672,24 +672,24 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/lot",
+      "DownstreamPathTemplate": "/api/lot/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "lot_server",
-          "Port": 80
+          "Host": "lotserver",
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/lot",
       "UpstreamHttpMethod": ["Get"]
     },
     {
-      "DownstreamPathTemplate": "/api/lot/detail",
+      "DownstreamPathTemplate": "/api/lot/detail/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "lot_server",
-          "Port": 80
+          "Host": "lotserver",
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/lot/detail",
@@ -700,12 +700,12 @@
     },
     //Payments
     {
-      "DownstreamPathTemplate": "/api/payment/detail",
+      "DownstreamPathTemplate": "/api/payment/detail/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "lot_server",
-          "Port": 80
+          "Host": "lotserver",
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/payment/detail",
@@ -715,16 +715,78 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/payment",
+      "DownstreamPathTemplate": "/api/payment/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "lot_server",
-          "Port": 80
+          "Host": "lotserver",
+          "Port": 8000
         }
       ],
       "UpstreamPathTemplate": "/payment",
-      "UpstreamHttpMethod": ["get"],
+      "UpstreamHttpMethod": ["Get", "Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    //notification
+    {
+      "DownstreamPathTemplate": "/api/v1/notification/{offset}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "notification_server",
+          "Port": 8000
+        }
+      ],
+      "UpstreamPathTemplate": "/notification/{offset}",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    //Trade
+    {
+      "DownstreamPathTemplate": "/api/v1/trade",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "trade_server",
+          "Port": 8000
+        }
+      ],
+      "UpstreamPathTemplate": "/trade",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/trade/approve_payment/{trade_id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "trade_server",
+          "Port": 8000
+        }
+      ],
+      "UpstreamPathTemplate": "/trade/approve_payment/{trade_id}",
+      "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/trade/cancel_transaction/{trade_id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "trade_server",
+          "Port": 8000
+        }
+      ],
+      "UpstreamPathTemplate": "/trade/cancel_transaction/{trade_id}",
+      "UpstreamHttpMethod": ["Post"],
       "UpstreamHeaderTransform": {
         "Role": "U"
       }

@@ -2,6 +2,7 @@
 using Crypto.Data.Configuration;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
+using Crypto.Domain.Models.Documents;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;

@@ -1,9 +1,10 @@
 ﻿using Crypto.Application.Commands.Wallets;
 using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses.Ethereum;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
+using Crypto.Domain.Models.Documents;
 using MongoDB.Bson;
 using Nethereum.Web3.Accounts;
 using static BCrypt.Net.BCrypt;

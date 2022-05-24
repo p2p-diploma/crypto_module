@@ -5,30 +5,59 @@ services:
   api_gateway:
     image: ${DOCKER_REGISTRY-}api_gateway
     container_name: api_gateway
-    build:
-      context: api_gateway
-      dockerfile: ./Dockerfile
+    build: api_gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - "AuthPath:Refresh=http://auth_server:8000/api/v1/refresh"
-    #depends_on:
-    #  - auth_server
-    #  - crypto_server
-    #  - lot_server
-    #  - appeals_server
-    #  - wallets_server
-    #  - chat_server
-    #  - trade_server
+      - "AuthSettings:RefreshTokenPath=http://auth_server:8000/api/v1/refresh"
+      - SecretKey=X]E&`I"mCdS1Y3uD+}_*lU?0~@|S6c
+   # depends_on:
+   #   - auth_server
+   #   - crypto_server
+   #   - lotserver
+   #   - appeals_server
+   #   - wallets_server
+   #   - chat_server
+   #   - trade_server
     ports:
-      - "5227:80"
+      - "3227:80"
     
+
+#For notification service
+  notification_server:
+    build: notification_module
+    ports:
+      - "8088:8000"
+    env_file: notification_module/.env
+
+  notification_db:
+    image: postgres:14
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - notification_module/.database.env
+    volumes:
+      - notification-postgres-data:/var/lib/postgresql/data
+
+  notification-server-migrate:
+    build: notification_module
+    depends_on:
+      notification_db:
+        condition: service_healthy
+    entrypoint: [ "alembic", "upgrade", "head" ]
+    env_file: notification_module/.env
+
+  consumer:
+    build: notification_module
+    depends_on: [ broker ]
+    env_file: notification_module/.consumer.env
 
 #For authorization service
   auth_server:
-    build: 
-      context: auth_module
-      dockerfile: ./Dockerfile
+    build: auth_module
     depends_on:
       - auth_migrate
     ports:
@@ -58,13 +87,11 @@ services:
 
 #Trade service
   trade_server:
-    build: 
-      context: trade_module
-      dockerfile: ./Dockerfile
+    build: trade_module
     depends_on:
       - trade_migrate
     ports:
-      - "8000:8000"
+      - "4227:8000"
     env_file: trade_module/.env
 
   trade_db:
@@ -77,7 +104,9 @@ services:
     env_file:
       - trade_module/.database.env
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data-trade:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
 
   trade_migrate:
     build: trade_module
@@ -96,6 +125,8 @@ services:
 
   broker:
     image: redis:6
+    ports:
+      - "6379:6379"
 
 
 #For crypto and wallet microservices
@@ -125,7 +156,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x6beab01817d9b12D24c2D3f6C932d6dB0C170f36"
+      - "SmartContractSettings:TokenAddress=0x1edeef09862d8aa5d69a5c277e9d69f3e80c7e9c"
     depends_on:
       - crypto_database
       - ganache
@@ -144,7 +175,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x6beab01817d9b12D24c2D3f6C932d6dB0C170f36"
+      - "SmartContractSettings:TokenAddress=0x1edeef09862d8aa5d69a5c277e9d69f3e80c7e9c"
     depends_on:
       - crypto_database
       - ganache
@@ -152,21 +183,46 @@ services:
       - "6227:80"
 
 #Lot service
-  lot_server:
-    platform: linux/amd64
-    container_name: lot_server
-    build:
-      context: lot_service
-      dockerfile: ./Dockerfile
-    image: ${DOCKER_REGISTRY-}lot_service
+  lot_db:
+    image: postgres:14
+    container_name: lot_db
+    environment:
+      PGUSER: postgres
+      POSTGRES_DB: lot_db
+      POSTGRES_PASSWORD: root
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data-lot:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  lot_migration:
+    restart: "no"
     depends_on:
-      - auth_db
-      - auth_server
+      lot_db:
+        condition: service_healthy
+    build: lot_service
+    entrypoint: python manage.py migrate
+    env_file:
+    - lot_service/.env
+
+  lotserver:
+    platform: linux/amd64
+    container_name: lotserver
+    build: lot_service
+    image: lot_service
+    env_file:
+      - lot_service/.env
+    depends_on: [lot_db, lot_migration]
     volumes:
       - ./lot_service/:/app
       - .:/lot_service
     ports:
-      - "8000:8000"
+      - "8227:8000"
 
 #Chat service
   chat_database:
@@ -177,16 +233,14 @@ services:
       - "5379:6379"
 
   chat_server:
-    image: ${DOCKER_REGISTRY-}chat_server
+    image: chat_server
     container_name: chat_server
-    build:
-      context: chat_service
-      dockerfile: ./Dockerfile
+    build: chat_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "ConnectionStrings:Redis=chat_database"
-      - "ApiGateway=api_gateway:5227"
+      - "ApiGateway=http://api_gateway:5227"
     depends_on:
       - chat_database
     ports:
@@ -198,24 +252,27 @@ services:
     image: mysql
     container_name: appeals_database
     restart: always
-    ports:
-      - 3306:3306  
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
  
   appeals_server:
-    image: ${DOCKER_REGISTRY-}appeals_server
+    image: appeals_server
     container_name: appeals_server
-    build:
-      context: appeal_service
+    build: 
+      context: appeal_service/AppealService
       dockerfile: ./Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "ConnectionStrings:DefaultConnection=server=appeals_database;uid=root;database=appeals_db"
+      - "ApiSettings:BaseAddress=http://api_gateway:5227"
     depends_on:
       - appeals_database
     ports:
-      - "8227:80"
+      - "9227:80"
 
 volumes:
   postgres-data-auth:
-  postgres-data:
+  postgres-data-trade:
+  postgres-data-lot:
+  notification-postgres-data:

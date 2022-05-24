@@ -1,7 +1,8 @@
 ﻿using Crypto.Application.Handlers.Base;
 using Crypto.Application.Queries.ERC20;
 using Crypto.Application.Responses.ERC20;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
+using Crypto.Domain.Contracts;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
 using MongoDB.Bson;
@@ -13,9 +14,9 @@ namespace Crypto.Application.Handlers.Wallets.ERC20;
 
 public class GetERC20P2PWalletByIdHandler : EthereumP2PWalletBaseHandler<GetErc20P2PWalletByIdQuery, Erc20P2PWalletResponse>
 {
-    private readonly EthereumAccountManager _accountManager;
+    private readonly Erc20AccountManager _accountManager;
     public GetERC20P2PWalletByIdHandler(IEthereumP2PWalletsRepository<ObjectId> repository, 
-        EthereumAccountManager accountManager) : base(repository)
+        Erc20AccountManager accountManager) : base(repository)
     {
         _accountManager = accountManager;
     }
@@ -27,8 +28,7 @@ public class GetERC20P2PWalletByIdHandler : EthereumP2PWalletBaseHandler<GetErc2
             throw new ArgumentException($"Token wallet with id {request.WalletId} does not exist");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
-        var web3 = new Web3(loadedAccount, _accountManager.BlockchainUrl);
-        var tokensAmount = await web3.Eth.ERC20.GetContractService(_accountManager.TokenAddress).BalanceOfQueryAsync(loadedAccount.Address);
-        return new(loadedAccount.Address, Web3.Convert.FromWei(tokensAmount, UnitConversion.EthUnit.Gwei));
+        var tokensAmount = await _accountManager.GetAccountBalanceAsync(loadedAccount);
+        return new(loadedAccount.Address, tokensAmount);
     }
 }

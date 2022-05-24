@@ -1,6 +1,6 @@
 ﻿using Crypto.Application.Handlers.Base;
 using Crypto.Application.Queries.Ethereum;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;

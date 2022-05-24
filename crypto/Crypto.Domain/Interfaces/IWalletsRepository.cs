@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Crypto.Domain.Models.Base;
+using Crypto.Domain.Models.Documents.Base;
 
 namespace Crypto.Domain.Interfaces;
 

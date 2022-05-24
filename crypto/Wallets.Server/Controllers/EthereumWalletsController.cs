@@ -221,7 +221,9 @@ public class EthereumWalletsController : ControllerBase
         if (!ModelState.IsValid) return BadRequest("Email is invalid");
         try
         {
-            return Ok(await _mediator.Send(new GetEthereumP2PWalletByEmailQuery(email), token));
+            var result = await _mediator.Send(new GetEthereumP2PWalletByEmailQuery(email), token);
+            Console.WriteLine(result.Address + " " + result.Id);
+            return Ok(result);
         }
         catch (AccountNotFoundException e)
         {
@@ -263,7 +265,7 @@ public class EthereumWalletsController : ControllerBase
     {
         try
         {
-            command.CurrencyType = CurrencyType.ETHER;
+            command.CurrencyType = CurrencyType.ETH;
             return Ok(await _mediator.Send(command, token));
         }
         catch (ArgumentException e)
@@ -310,7 +312,7 @@ public class EthereumWalletsController : ControllerBase
     {
         try
         {
-            command.CurrencyType = CurrencyType.ETHER;
+            command.CurrencyType = CurrencyType.ETH;
             return Ok(await _mediator.Send(command, token));
         }
         catch (ArgumentException e)
@@ -356,7 +358,7 @@ public class EthereumWalletsController : ControllerBase
     {
         try
         {
-            command.CurrencyType = CurrencyType.ETHER;
+            command.CurrencyType = CurrencyType.ETH;
             return Ok(await _mediator.Send(command, token));
         }
         catch (ArgumentException e)
@@ -392,7 +394,7 @@ public class EthereumWalletsController : ControllerBase
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
         try
         {
-            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETHER};
+            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
             return Ok(await _mediator.Send(query, token));
         }
         catch (ArgumentException e)
@@ -442,7 +444,7 @@ public class EthereumWalletsController : ControllerBase
     {
         try
         {
-            command.CurrencyType = CurrencyType.ETHER;
+            command.CurrencyType = CurrencyType.ETH;
             return Ok(await _mediator.Send(command, token));
         }
         catch (ArgumentException e)
@@ -488,7 +490,7 @@ public class EthereumWalletsController : ControllerBase
     {
         try
         {
-            command.CurrencyType = CurrencyType.ETHER;
+            command.CurrencyType = CurrencyType.ETH;
             return Ok(await _mediator.Send(command, token));
         }
         catch (ArgumentException e)
@@ -534,7 +536,7 @@ public class EthereumWalletsController : ControllerBase
     {
         try
         {
-            command.CurrencyType = CurrencyType.ETHER;
+            command.CurrencyType = CurrencyType.ETH;
             return Ok(await _mediator.Send(command, token));
         }
         catch (ArgumentException e)
@@ -570,7 +572,7 @@ public class EthereumWalletsController : ControllerBase
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
         try
         {
-            var query = new GetAmountToSellQuery { WalletId = id, CurrencyType = CurrencyType.ETHER};
+            var query = new GetAmountToSellQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
             return Ok(await _mediator.Send(query, token));
         }
         catch (ArgumentException e)

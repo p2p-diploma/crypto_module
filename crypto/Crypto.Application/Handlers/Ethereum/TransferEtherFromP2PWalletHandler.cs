@@ -1,9 +1,10 @@
 ﻿using Crypto.Application.Commands.Ethereum;
 using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
+using Crypto.Domain.Models;
 using MongoDB.Bson;
 using Nethereum.KeyStore;
 
@@ -28,6 +29,6 @@ public class TransferEtherFromP2PWalletHandler
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(p2pWallet.KeyStore), p2pWallet.Hash);
-        return await _accountManager.Transfer(request.RecipientAddress, request.Amount, account, cancellationToken);
+        return await _accountManager.TransferAsync(request.RecipientAddress, request.Amount, account, cancellationToken);
     }
 }

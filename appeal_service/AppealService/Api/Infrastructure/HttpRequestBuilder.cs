@@ -6,16 +6,16 @@ namespace AppealService.Api.Infrastructure;
 public class HttpRequestBuilder : IDisposable
 {
      private readonly HttpRequestMessage _request;
-        private string _baseAddress;
-        private readonly ApiBuilder _apiBuilder;
+     public string BaseAddress { get; private set; }
+     private readonly ApiBuilder _apiBuilder;
         public HttpRequestBuilder(string uri) : this(new ApiBuilder(uri)) {
-        
+            
         }
         public HttpRequestBuilder(ApiBuilder apiBuilder)
         {
             _request = new HttpRequestMessage();
             _apiBuilder = apiBuilder;
-            _baseAddress = _apiBuilder.GetLeftPart();
+            BaseAddress = _apiBuilder.GetLeftPart();
         }
         public HttpRequestBuilder HttpMethod(HttpMethod httpMethod)
         {
@@ -62,9 +62,9 @@ public class HttpRequestBuilder : IDisposable
         {
             return RequestUri(new Uri(uri));
         }
-        public HttpRequestBuilder BaseAddress(string address)
+        public HttpRequestBuilder SetBaseAddress(string address)
         {
-            _baseAddress = address;
+            BaseAddress = address;
             return this;
         }
         public HttpRequestBuilder Subdomain(string subdomain)

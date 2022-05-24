@@ -15,9 +15,9 @@ public class IncreaseAmountToSellHandler : EthereumP2PWalletBaseHandler<Increase
     public override async Task<decimal> Handle(IncreaseAmountToSellCommand request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.WalletId);
-        var amountToSell = await _repository.FindOneAndProjectAsync(w => w.Id == id, wallet => wallet.EthereumAmountToSell, cancellationToken);
+        var amountToSell = await _repository.FindOneAndProjectAsync(w => w.Id == id, wallet => wallet.EthToSell, cancellationToken);
         amountToSell += request.Amount;
-        var updatedWallet = await _repository.UpdateAmountToSellAsync(id, amountToSell, CurrencyType.ETHER, cancellationToken);
-        return updatedWallet.EthereumAmountToBuy;
+        var updatedWallet = await _repository.UpdateAmountToSellAsync(id, amountToSell, CurrencyType.ETH, cancellationToken);
+        return updatedWallet.EthToBuy;
     }
 }

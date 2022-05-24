@@ -1,4 +1,5 @@
 ﻿using Crypto.Application.Responses;
+using Crypto.Domain.Models;
 using MediatR;
 
 namespace Crypto.Application.Commands.ERC20;

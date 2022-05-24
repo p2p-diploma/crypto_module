@@ -1,9 +1,9 @@
 global using static Crypto.Data.ObjectIdExtension;
 using System.Reflection;
 using Crypto.Application.Responses.ERC20;
-using Crypto.Application.Utils;
 using Crypto.Data.Configuration;
 using Crypto.Data.Repositories;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Interfaces;
 using Crypto.Server.Validators.Ethereum;
@@ -25,12 +25,17 @@ builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidator
     });
 builder.Services.AddMediatR(typeof(Erc20WalletResponse).Assembly);
 #endregion
-#region Utils
+#region Account Managers
+builder.Services.AddTransient(opt =>
+{
+    var connections = opt.GetRequiredService<BlockchainConnections>();
+    return new EthereumAccountManager(connections.Ganache, connections);
+});
 builder.Services.AddTransient(opt =>
 {
     var connections = opt.GetRequiredService<BlockchainConnections>();
     var settings = opt.GetRequiredService<SmartContractSettings>();
-    return new EthereumAccountManager(connections.Ganache, connections, settings);
+    return new Erc20AccountManager(connections.Ganache, connections, settings);
 });
 #endregion
 #region Configuration
@@ -54,9 +59,7 @@ builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuratio
 builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWalletsRepository>();
 builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
-#region Authentication
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts => { opts.RequireHttpsMetadata = false; });
-#endregion
+builder.Services.AddCors();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 #region Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -82,6 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+//app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

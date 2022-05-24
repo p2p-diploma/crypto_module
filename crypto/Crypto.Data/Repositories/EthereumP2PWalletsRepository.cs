@@ -4,6 +4,7 @@ using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
+using Crypto.Domain.Models.Documents;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -50,11 +51,11 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
         UpdateDefinition<EthereumP2PWallet<ObjectId>> updateDefinition;
         switch (currencyType)
         {
-            case CurrencyType.ETHER:
-                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.EthereumAmountToBuy, amount);
+            case CurrencyType.ETH:
+                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.EthToBuy, amount);
                 break;
             case CurrencyType.ERC20:
-                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.Erc20AmountToBuy, amount);
+                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.Erc20ToBuy, amount);
                 break;
             default:
                 return null;
@@ -70,11 +71,11 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
         UpdateDefinition<EthereumP2PWallet<ObjectId>> updateDefinition;
         switch (currencyType)
         {
-            case CurrencyType.ETHER:
-                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.EthereumAmountToSell, amount);
+            case CurrencyType.ETH:
+                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.EthToSell, amount);
                 break;
             case CurrencyType.ERC20:
-                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.Erc20AmountToSell, amount);
+                updateDefinition = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.Erc20ToSell, amount);
                 break;
             default:
                 return null;

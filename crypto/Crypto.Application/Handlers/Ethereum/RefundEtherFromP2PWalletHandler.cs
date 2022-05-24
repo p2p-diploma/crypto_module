@@ -1,7 +1,7 @@
 ﻿using Crypto.Application.Commands.Ethereum;
 using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
@@ -36,7 +36,7 @@ public class RefundEtherFromP2PWalletHandler : EthereumP2PWalletBaseHandler<Refu
         if (userWallet.IsFrozen) throw new AccountFrozenException();
         var scryptService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(p2pWallet.KeyStore), p2pWallet.Hash);
-        return await _accountManager.Transfer(userWallet.KeyStore.Address, request.Amount, account, cancellationToken);
+        return await _accountManager.TransferAsync(userWallet.KeyStore.Address, request.Amount, account, cancellationToken);
     }
 
 }

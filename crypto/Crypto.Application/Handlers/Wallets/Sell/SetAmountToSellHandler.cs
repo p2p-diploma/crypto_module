@@ -15,7 +15,7 @@ public class SetAmountToSellHandler : EthereumP2PWalletBaseHandler<SetAmountToSe
     public override async Task<decimal> Handle(SetAmountToSellCommand request, CancellationToken cancellationToken)
     {
         var updatedWallet = await _repository.UpdateAmountToSellAsync(ObjectId.Parse(request.WalletId), request.Amount,
-            CurrencyType.ETHER, cancellationToken);
-        return updatedWallet.EthereumAmountToSell;
+            CurrencyType.ETH, cancellationToken);
+        return updatedWallet.EthToSell;
     }
 }

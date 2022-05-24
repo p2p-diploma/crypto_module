@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using AppealService.Dtos;
-using AppealService.Filters;
 using AppealService.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +7,6 @@ namespace AppealService.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-//[TokenAuthorize("A")]
 public class AppealsController : ControllerBase
 {
     private readonly AppealsService _service;
@@ -20,11 +18,10 @@ public class AppealsController : ControllerBase
     }
 
     [HttpPost]
-    //[TokenAuthorize("U")]
-    public async Task<IActionResult> CreateAppeal([FromBody] CreateAppealDto appeal, [FromHeader(Name = "Bearer")] string accessToken,
+    public async Task<IActionResult> CreateAppeal([FromBody] CreateAppealDto appeal,
         IFormFile? receipt, CancellationToken token)
     {
-        accessToken = accessToken.Split(' ').Last();
+        string? accessToken = HttpContext.Request.Cookies["jwt-access"];
         if (!ModelState.IsValid) return BadRequest();
         if (receipt == null) return BadRequest("Receipt was not uploaded");
         if (receipt.ContentType != "application/pdf") return BadRequest("Receipt should be in pdf format");
@@ -90,10 +87,10 @@ public class AppealsController : ControllerBase
 
 
     [HttpPost("freeze/{email}")]
-    public async Task<IActionResult> FreezeAccount(string buyerEmail, string senderEmail, [FromHeader(Name = "Bearer")] string accessToken,
+    public async Task<IActionResult> FreezeAccount(string buyerEmail, string senderEmail,
         CancellationToken token)
     {
-        accessToken = accessToken.Split(' ').Last();
+        string? accessToken = HttpContext.Request.Cookies["jwt-access"];
         var result = await _service.FreezeAccount(buyerEmail, senderEmail, accessToken, token);
         return result.StatusCode switch
         {

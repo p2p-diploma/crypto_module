@@ -1,7 +1,7 @@
 ﻿using Crypto.Application.Handlers.Base;
 using Crypto.Application.Queries.Ethereum;
 using Crypto.Application.Responses.Ethereum;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
@@ -27,7 +27,7 @@ public class GetEthereumP2PWalletByIdHandler : EthereumP2PWalletBaseHandler<GetE
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
-        var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
+        var balanceInEther = await _accountManager.GetAccountBalanceAsync(loadedAccount);
         return new(loadedAccount.Address, balanceInEther);
     }
 

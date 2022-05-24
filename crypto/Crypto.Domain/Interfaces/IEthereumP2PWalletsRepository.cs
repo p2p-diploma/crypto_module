@@ -1,5 +1,6 @@
 ﻿using Crypto.Domain.Configuration;
 using Crypto.Domain.Models;
+using Crypto.Domain.Models.Documents;
 
 namespace Crypto.Domain.Interfaces;
 

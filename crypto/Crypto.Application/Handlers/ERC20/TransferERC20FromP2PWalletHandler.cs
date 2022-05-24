@@ -1,7 +1,7 @@
 ﻿using Crypto.Application.Commands.ERC20;
 using Crypto.Application.Handlers.Base;
 using Crypto.Application.Responses;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
@@ -13,9 +13,9 @@ namespace Crypto.Application.Handlers.ERC20;
 
 public class TransferERC20FromP2PWalletHandler : EthereumP2PWalletBaseHandler<TransferERC20FromP2PWalletCommand, TransactionResponse>
 {
-    private readonly EthereumAccountManager _accountManager;
+    private readonly Erc20AccountManager _accountManager;
 
-    public TransferERC20FromP2PWalletHandler(EthereumAccountManager accountManager, 
+    public TransferERC20FromP2PWalletHandler(Erc20AccountManager accountManager, 
         IEthereumP2PWalletsRepository<ObjectId> repository) : base(repository)
     {
         _accountManager = accountManager;
@@ -30,6 +30,6 @@ public class TransferERC20FromP2PWalletHandler : EthereumP2PWalletBaseHandler<Tr
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
         var scryptService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(p2pWallet.KeyStore), p2pWallet.Hash);
-        return await _accountManager.Transfer(request.RecipientAddress, request.Amount, account, cancellationToken);
+        return await _accountManager.TransferAsync(request.RecipientAddress, request.Amount, account, cancellationToken);
     }
 }

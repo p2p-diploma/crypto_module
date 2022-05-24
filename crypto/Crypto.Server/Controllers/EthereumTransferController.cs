@@ -2,6 +2,7 @@
 using Crypto.Application.Responses;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
+using Crypto.Domain.Models;
 using Crypto.Server.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

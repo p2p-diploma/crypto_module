@@ -1,4 +1,4 @@
-﻿namespace Crypto.Domain.Models.Base;
+﻿namespace Crypto.Domain.Models.Documents.Base;
 
 public interface IWallet<TId> 
 {

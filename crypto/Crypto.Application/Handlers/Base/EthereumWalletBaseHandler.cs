@@ -1,6 +1,4 @@
-﻿using Crypto.Application.Utils;
-using Crypto.Domain.Interfaces;
-using Crypto.Domain.Models.Base;
+﻿using Crypto.Domain.Interfaces;
 using MediatR;
 using MongoDB.Bson;
 

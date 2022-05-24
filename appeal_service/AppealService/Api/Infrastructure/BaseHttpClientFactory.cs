@@ -1,28 +1,35 @@
-﻿using System.Text.Json;
+﻿using System.Net;
 
 namespace AppealService.Api.Infrastructure;
 
 public abstract class BaseHttpClientFactory
 {
-    private readonly IHttpClientFactory _factory;
     protected HttpRequestBuilder _builder;
-    public BaseHttpClientFactory(IHttpClientFactory factory)
-    {
-        _factory = factory;
-    }
-    public HttpClient Client => _factory.CreateClient();
 
-    public virtual async Task<T?> GetResponseAsync<T>(HttpRequestMessage request, CancellationToken token) where T : class
+    public BaseHttpClientFactory(IConfiguration config)
     {
-        using var client = Client;
+        _builder = new HttpRequestBuilder(config["ApiSettings:BaseAddress"]);
+    }
+
+    public virtual async Task<T?> GetResponseAsync<T>(HttpRequestMessage request, string? accessToken, CancellationToken token) where T : class
+    {
+        var cookies = new CookieContainer();
+        var baseAddress = new Uri(_builder.BaseAddress);
+        using var handler = new HttpClientHandler { CookieContainer = cookies };
+        cookies.Add(baseAddress, new Cookie("jwt-access", accessToken));
+        using var client = new HttpClient(handler){ BaseAddress = baseAddress };
         using var response = await client.SendAsync(request, token);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<T>(cancellationToken: token);
     }
 
-    public virtual async Task<string> GetResponseStringAsync(HttpRequestMessage request, CancellationToken token)
+    public virtual async Task<string> GetResponseStringAsync(HttpRequestMessage request, string? accessToken, CancellationToken token)
     {
-        using var client = Client;
+        var cookies = new CookieContainer();
+        var baseAddress = new Uri(_builder.BaseAddress);
+        using var handler = new HttpClientHandler { CookieContainer = cookies };
+        cookies.Add(baseAddress, new Cookie("jwt-access", accessToken));
+        using var client = new HttpClient(handler){ BaseAddress = baseAddress };
         using var response = await client.SendAsync(request, token);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync(token);

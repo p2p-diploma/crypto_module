@@ -25,7 +25,7 @@ public class AppealsService
         _notificationService = notificationService;
     }
 
-    public async Task CreateAppealAsync(CreateAppealDto dto, string accessToken, CancellationToken token)
+    public async Task CreateAppealAsync(CreateAppealDto dto, string? accessToken, CancellationToken token)
     {
         var buyer = await _usersApi.GetByEmail(dto.BuyerEmail, accessToken, token);
         var seller = await _usersApi.GetByEmail(dto.SellerEmail, accessToken, token);
@@ -89,7 +89,7 @@ public class AppealsService
         return await _context.Receipts.FindAsync(id);
     }
 
-    public async Task<ApiResult> FreezeAccount(string buyerEmail, string sellerEmail, string accessToken, CancellationToken token)
+    public async Task<ApiResult> FreezeAccount(string buyerEmail, string sellerEmail, string? accessToken, CancellationToken token)
     {
         var result = await _walletsApi.FreezeWallets(accessToken, sellerEmail, token);
         if(result.StatusCode == HttpStatusCode.OK)

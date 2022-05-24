@@ -1,7 +1,7 @@
 ﻿using Crypto.Application.Handlers.Base;
 using Crypto.Application.Queries.Ethereum;
 using Crypto.Application.Responses.Ethereum;
-using Crypto.Application.Utils;
+using Crypto.Domain.Accounts;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
@@ -26,7 +26,7 @@ public class GetEthereumWalletByIdHandler : EthereumWalletBaseHandler<GetEthereu
             throw new AccountNotFoundException($"Wallet with id {request.Id} is not found");
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
-        var balanceInEther = await _accountManager.GetAccountBalanceInEtherAsync(loadedAccount);
+        var balanceInEther = await _accountManager.GetAccountBalanceAsync(loadedAccount);
         return new EthereumWalletResponse(balanceInEther, loadedAccount.Address);
     }
 

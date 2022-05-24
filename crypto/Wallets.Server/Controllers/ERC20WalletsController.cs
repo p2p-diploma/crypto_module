@@ -350,7 +350,7 @@ public class ERC20WalletsController : ControllerBase
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
         try
         {
-            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETHER};
+            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
             query.CurrencyType = CurrencyType.ERC20;
             return Ok(await _mediator.Send(query, token));
         }

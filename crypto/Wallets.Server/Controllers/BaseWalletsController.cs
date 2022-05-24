@@ -135,7 +135,6 @@ public class BaseWalletsController : ControllerBase
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
         var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(id), token);
-        if (allFrozen) return Ok("Wallets are successfully frozen");
-        return StatusCode(500, "Failed to freeze wallets");
+        return allFrozen ? Ok("Wallets are successfully frozen") : StatusCode(500, "Failed to freeze wallets");
     }
 }

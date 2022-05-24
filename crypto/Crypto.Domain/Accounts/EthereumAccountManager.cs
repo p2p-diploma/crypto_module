@@ -1,6 +1,7 @@
 ﻿using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Models;
+using Microsoft.Extensions.Logging;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Model;
 using Nethereum.Signer;
@@ -10,29 +11,33 @@ using Nethereum.Web3.Accounts;
 namespace Crypto.Domain.Accounts;
 public class EthereumAccountManager
 {
+    protected readonly ILogger<EthereumAccountManager> _logger;
     public string BlockchainUrl { get; }
     public int ChainId { get; }
-    public EthereumAccountManager(string blockchainUrl, BlockchainConnections blockchainConnections)
+    public EthereumAccountManager(string blockchainUrl, BlockchainConnections blockchainConnections, ILogger<EthereumAccountManager> logger)
     {
         BlockchainUrl = blockchainUrl;
+        _logger = logger;
         ChainId = blockchainConnections.GetChainId(BlockchainUrl);
     }
-    public static KeyStore<ScryptParams> GenerateKeyStore(string passwordHash, out string privateKey)
+    public KeyStore<ScryptParams> GenerateKeyStore(string passwordHash, out string privateKey)
     {
         var key = EthECKey.GenerateKey();
         byte[] generatedPrivateKey = key.GetPrivateKeyAsBytes();
         var generatedAddress = key.GetPublicAddress();
         var keyStore = new KeyStoreScryptService();
         privateKey = key.GetPrivateKey();
+        _logger.LogInformation($"Generated private key: {privateKey}, address: {generatedAddress}");
         return keyStore.EncryptAndGenerateKeyStore(passwordHash, generatedPrivateKey, generatedAddress);
     }
 
-    public static KeyStore<ScryptParams> GenerateKeyStoreFromKey(string passwordHash, string privateKey)
+    public KeyStore<ScryptParams> GenerateKeyStoreFromKey(string passwordHash, string privateKey)
     {
         var key = new EthECKey(privateKey);
         byte[] generatedPrivateKey = key.GetPrivateKeyAsBytes();
         var generatedAddress = key.GetPublicAddress();
         var keyStore = new KeyStoreScryptService();
+        _logger.LogInformation($"Imported private key: {privateKey}, address: {generatedAddress}");
         return keyStore.EncryptAndGenerateKeyStore(passwordHash, generatedPrivateKey, generatedAddress);
     }
     public Account LoadAccountFromKeyStore(string json, string passwordHash) => Account.LoadFromKeyStore(json, passwordHash, ChainId);
@@ -44,10 +49,13 @@ public class EthereumAccountManager
         {
             var web3 = new Web3(account, BlockchainUrl);
             var balanceInWei = await web3.Eth.GetBalance.SendRequestAsync(account.Address);
-            return Web3.Convert.FromWei(balanceInWei.Value);
+            var balance = Web3.Convert.FromWei(balanceInWei.Value);
+            _logger.LogInformation($"ETH balance of {account.Address}: {balance}");
+            return balance;
         }
-        catch
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return 0;
         }
     }
@@ -57,13 +65,21 @@ public class EthereumAccountManager
     {
         var web3 = new Web3(sender, BlockchainUrl){ TransactionManager = { UseLegacyAsDefault = true } };
         var balance = await web3.Eth.GetBalance.SendRequestAsync(sender.Address);
-        if (Web3.Convert.FromWei(balance) < amount)
+        var balanceInEth = Web3.Convert.FromWei(balance);
+        if (balanceInEth < amount)
+        {
+            _logger.LogWarning($"Not enough ETH to transfer to {recipient}: {amount} from {sender.Address}: {balanceInEth}");
             throw new AccountBalanceException("Not enough balance on wallet");
+        }
         //Transfer eth to recipient
         var transaction = await web3.Eth.GetEtherTransferService().TransferEtherAndWaitForReceiptAsync(recipient, amount);
         //if transaction is successful
         if (transaction.HasErrors() is false)
+        {
+            _logger.LogInformation($"Successful ETH transfer transaction for {sender.Address}");
             return new(sender.Address, recipient, CurrencyType.ETH, amount, transaction.TransactionHash, DateTime.Now);
+        }
+        _logger.LogError($"ETH transfer transaction error for {sender.Address}");
         throw new BlockchainTransactionException("Transaction error occured");
     }
 }

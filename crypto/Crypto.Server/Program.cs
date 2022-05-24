@@ -10,6 +10,7 @@ using Crypto.Server.Validators.Ethereum;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
@@ -25,17 +26,26 @@ builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidator
     });
 builder.Services.AddMediatR(typeof(Erc20WalletResponse).Assembly);
 #endregion
+#region Logging
+builder.Logging.AddConsole();
+builder.Services.AddHttpLogging(o =>
+{
+    o.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders | HttpLoggingFields.RequestPath;
+});
+#endregion
 #region Account Managers
 builder.Services.AddTransient(opt =>
 {
     var connections = opt.GetRequiredService<BlockchainConnections>();
-    return new EthereumAccountManager(connections.Ganache, connections);
+    var logger = opt.GetRequiredService<ILogger<EthereumAccountManager>>();
+    return new EthereumAccountManager(connections.Ganache, connections, logger);
 });
 builder.Services.AddTransient(opt =>
 {
     var connections = opt.GetRequiredService<BlockchainConnections>();
     var settings = opt.GetRequiredService<SmartContractSettings>();
-    return new Erc20AccountManager(connections.Ganache, connections, settings);
+    var logger = opt.GetRequiredService<ILogger<Erc20AccountManager>>();
+    return new Erc20AccountManager(connections.Ganache, connections, settings, logger);
 });
 #endregion
 #region Configuration
@@ -59,7 +69,7 @@ builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuratio
 builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWalletsRepository>();
 builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
-builder.Services.AddCors();
+//builder.Services.AddCors();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 #region Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -68,7 +78,7 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Smart contracts interaction: Ethereum and ERC20 transfer API",
+        Title = "ETH and ERC20 Transfer API",
         Description =
             "API for transferring Ethereum and ERC20 via smart contracts: block sum, transfer and revert transfer"
     });
@@ -85,6 +95,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+app.UseHttpLogging();
 //app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 app.UseAuthorization();
 app.MapControllers();

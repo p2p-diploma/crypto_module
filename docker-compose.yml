@@ -156,7 +156,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x1edeef09862d8aa5d69a5c277e9d69f3e80c7e9c"
+      - "SmartContractSettings:TokenAddress=0x66B6AA26e29498296754c5675F11707ca7348f25"
     depends_on:
       - crypto_database
       - ganache
@@ -175,7 +175,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x1edeef09862d8aa5d69a5c277e9d69f3e80c7e9c"
+      - "SmartContractSettings:TokenAddress=0x66B6AA26e29498296754c5675F11707ca7348f25"
     depends_on:
       - crypto_database
       - ganache

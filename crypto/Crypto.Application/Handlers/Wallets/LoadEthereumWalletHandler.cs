@@ -5,6 +5,7 @@ using Crypto.Domain.Accounts;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
 using Crypto.Domain.Models.Documents;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using Nethereum.Web3.Accounts;
 using static BCrypt.Net.BCrypt;
@@ -14,11 +15,14 @@ public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumW
 {
     private readonly IEthereumP2PWalletsRepository<ObjectId> _p2pWalletsRepository;
     private readonly EthereumAccountManager _accountManager;
+    private readonly ILogger<LoadEthereumWalletHandler> _logger;
  public LoadEthereumWalletHandler(IEthereumWalletsRepository<ObjectId> repository,
-     EthereumAccountManager accountManager, IEthereumP2PWalletsRepository<ObjectId> p2PWalletsRepository) : base(repository)
+     EthereumAccountManager accountManager, IEthereumP2PWalletsRepository<ObjectId> p2PWalletsRepository,
+     ILogger<LoadEthereumWalletHandler> logger) : base(repository)
      {
          _accountManager = accountManager;
          _p2pWalletsRepository = p2PWalletsRepository;
+         _logger = logger;
      }
 
     public override async Task<CreatedEthereumWalletResponse> Handle(LoadEthereumWalletCommand command, CancellationToken token)
@@ -28,8 +32,18 @@ public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumW
         if (string.IsNullOrWhiteSpace(command.PrivateKey) ||
             command.PrivateKey.CompareTo("ffffffff ffffffff ffffffff fffffffe baaedce6 af48a03b bfd25e8c d0364141") >= 0)
             throw new ArgumentException("Specified private key is invalid: can't load account");
-        
-        var loadedAccount = new Account(command.PrivateKey, _accountManager.ChainId);
+        Account loadedAccount;
+        try
+        {
+            loadedAccount = new Account(command.PrivateKey, _accountManager.ChainId);
+            _logger.LogInformation($"Loaded account for {command.Email} with private key {loadedAccount.PrivateKey}," +
+                                   $" address {loadedAccount.Address}");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Failed to load account: " + e.Message);
+            throw new ArgumentException("Failed to import wallet: perhaps private key is invalid");
+        }
         var walletId = ObjectId.GenerateNewId(DateTime.Now);
         var passwordHash = HashPassword(command.Password);
         var createdWallets = await Task.WhenAll(LoadPlatformWallet(loadedAccount, walletId, command.Email, passwordHash, token),
@@ -39,14 +53,14 @@ public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumW
     
     private async Task<CreatedEthereumWalletResponse> LoadPlatformWallet(Account loadedAccount, ObjectId walletId, string email, string hash, CancellationToken token)
     {
-        var keyStore = EthereumAccountManager.GenerateKeyStoreFromKey(hash, loadedAccount.PrivateKey);
+        var keyStore = _accountManager.GenerateKeyStoreFromKey(hash, loadedAccount.PrivateKey);
         EthereumWallet<ObjectId> wallet = new() { Email = email, Hash = hash, KeyStore = keyStore, Id = walletId };
         await _repository.CreateAsync(wallet, token);
         return new(keyStore.Address, loadedAccount.PrivateKey, walletId.ToString());
     }
     private async Task<CreatedEthereumWalletResponse> CreateP2PWallet(ObjectId walletId, string hash, string email, CancellationToken token)
     {
-        var keyStore = EthereumAccountManager.GenerateKeyStore(hash, out _);
+        var keyStore = _accountManager.GenerateKeyStore(hash, out _);
         EthereumP2PWallet<ObjectId> wallet = new()
             { Hash = hash, KeyStore = keyStore, Id = walletId, Email = email };
         await _p2pWalletsRepository.CreateAsync(wallet, token);

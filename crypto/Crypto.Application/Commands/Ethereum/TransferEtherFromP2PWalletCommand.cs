@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Crypto.Application.Commands.Ethereum;
 
-public record TransferEtherFromP2PWalletCommand(string WalletId, string RecipientAddress, decimal Amount) : IRequest<TransactionResponse>;
+public record TransferEtherFromP2PWalletCommand(string WalletId, string RecipientId, decimal Amount) : IRequest<TransactionResponse>;

@@ -55,7 +55,7 @@ builder.Services.AddSingleton(new BlockchainConnections
     Rinkeby = builder.Configuration["BlockchainConnections:Rinkeby"], Goerly = builder.Configuration["BlockchainConnections:Goerly"],
     Ropsten = builder.Configuration["BlockchainConnections:Ropsten"]
 });
-builder.Services.AddSingleton(new SmartContractSettings { StandardERC20Address = builder.Configuration["SmartContractSettings:StandardERC20Address"] });
+builder.Services.AddSingleton(new SmartContractSettings { TokenAddress = builder.Configuration["SmartContractSettings:TokenAddress"] });
 builder.Services.AddSingleton(new DatabaseSettings
 {
     ConnectionString = builder.Configuration["DatabaseSettings:ConnectionString"],

@@ -9,7 +9,7 @@ public class TransferEtherFromP2PWalletValidator : AbstractValidator<TransferEth
     public TransferEtherFromP2PWalletValidator()
     {
         RuleFor(c => c.WalletId).NotEmpty().Must(IsParsable).WithMessage("P2P wallet id is invalid");
-        RuleFor(c => c.RecipientAddress).NotEmpty().Must(Web3.IsChecksumAddress).WithMessage("User wallet's address is invalid");
+        RuleFor(c => c.RecipientId).NotEmpty().Must(IsParsable).WithMessage("Recipient P2P wallet id is invalid");
         RuleFor(r => r.Amount).GreaterThan(0).WithMessage("Amount of ether must be greater than 0");
     }
 }

@@ -2,5 +2,5 @@
 
 public record SmartContractSettings
 {
-    public string StandardERC20Address { get; set; }
+    public string TokenAddress { get; set; }
 }

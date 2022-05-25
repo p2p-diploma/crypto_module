@@ -19,7 +19,7 @@ public class Erc20AccountManager : EthereumAccountManager
         ILogger<Erc20AccountManager> logger)
         : base(blockchainUrl, blockchainConnections, logger)
     {
-        TokenAddress = settings.StandardERC20Address;
+        TokenAddress = settings.TokenAddress;
     }
     public override async Task<decimal> GetAccountBalanceAsync(Account account)
     {
@@ -29,7 +29,7 @@ public class Erc20AccountManager : EthereumAccountManager
         {
             var amount = await _token.BalanceOfQueryAsync(account.Address);
             _logger.LogInformation($"ERC20 balance of {account.Address}: {amount}");
-            return Web3.Convert.FromWei(amount, UnitConversion.EthUnit.Gwei);
+            return Web3.Convert.FromWei(amount, UnitConversion.EthUnit.Kwei);
         }
         catch (Exception e)
         {
@@ -47,7 +47,7 @@ public class Erc20AccountManager : EthereumAccountManager
         _token = new StandardERC20Service(web3, TokenAddress);
         var balanceMessage = new BalanceOfFunction { FromAddress = sender.Address, Account = sender.Address };
         var tokenBalance = await _token.BalanceOfQueryAsync(balanceMessage);
-        var amountInWei = Web3.Convert.ToWei(amount, UnitConversion.EthUnit.Gwei);
+        var amountInWei = Web3.Convert.ToWei(amount, UnitConversion.EthUnit.Kwei);
         if (tokenBalance < amountInWei)
         {
             _logger.LogWarning($"Not enough ERC20 to transfer to {recipient}: {amount} from {sender.Address}: {tokenBalance}");

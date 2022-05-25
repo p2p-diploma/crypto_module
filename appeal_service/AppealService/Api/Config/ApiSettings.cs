@@ -2,7 +2,8 @@
 
 public class ApiSettings
 {
-    public string BaseAddress { get; set; }
-    public string AuthPath { get; set; }
+    public string UsersAddress { get; set; }
+    public string UsersPath { get; set; }
+    public string WalletsAddress { get; set; }
     public string WalletsPath { get; set; }
 }

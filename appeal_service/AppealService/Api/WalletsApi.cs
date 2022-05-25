@@ -9,10 +9,11 @@ namespace AppealService.Api;
 public class WalletsApi : BaseHttpClientFactory
 {
     private readonly ApiSettings _settings;
-    public WalletsApi(IOptions<ApiSettings> settings, IConfiguration conf) : base(conf)
+    public WalletsApi(IOptions<ApiSettings> settings)
     {
         _settings = settings.Value;
-        _builder = new(_settings.WalletsPath);
+        _builder = new(_settings.WalletsAddress);
+        _builder.AddToPath(_settings.WalletsPath);
     }
 
     public async Task<ApiResult> FreezeWallets(string? accessToken, string sellerEmail, CancellationToken token)
@@ -23,9 +24,10 @@ public class WalletsApi : BaseHttpClientFactory
                 .AddToPath($"/email/{sellerEmail}").AddQueryString("includeBalance", "false").HttpMessage;
             var sellerWallet = await GetResponseAsync<Wallet>(walletMessage, accessToken, token);
             
-           var freezeRequest = _builder.SetPath($"/freeze/{sellerWallet.Id}").HttpMethod(HttpMethod.Put).HttpMessage;
-           var message = await GetResponseStringAsync(freezeRequest, accessToken, token);
-           return new ApiResult(HttpStatusCode.OK, message);
+            var freezeRequest = _builder.SetPath(_settings.WalletsAddress + $"/freeze/{sellerWallet.Id}")
+                .HttpMethod(HttpMethod.Put).HttpMessage;
+            var message = await GetResponseStringAsync(freezeRequest, accessToken, token);
+            return new ApiResult(HttpStatusCode.OK, message);
         }
         catch (HttpRequestException e)
         {

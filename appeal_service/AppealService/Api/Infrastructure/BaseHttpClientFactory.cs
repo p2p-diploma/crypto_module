@@ -6,11 +6,6 @@ public abstract class BaseHttpClientFactory
 {
     protected HttpRequestBuilder _builder;
 
-    public BaseHttpClientFactory(IConfiguration config)
-    {
-        _builder = new HttpRequestBuilder(config["ApiSettings:BaseAddress"]);
-    }
-
     public virtual async Task<T?> GetResponseAsync<T>(HttpRequestMessage request, string? accessToken, CancellationToken token) where T : class
     {
         var cookies = new CookieContainer();

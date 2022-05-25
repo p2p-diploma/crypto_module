@@ -10,5 +10,6 @@ public record CreateAppealDto
     public string SellerEmail { get; set; }
     [Required(ErrorMessage = "Lot id is empty")]
     public string LotId { get; set; }
-    public IFormFile Receipt { get; set; }
+    [Required(ErrorMessage = "Receipt is empty")]
+    public IFormFile? Receipt { get; set; }
 }

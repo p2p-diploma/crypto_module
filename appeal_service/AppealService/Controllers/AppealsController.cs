@@ -18,17 +18,16 @@ public class AppealsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAppeal([FromBody] CreateAppealDto appeal,
-        IFormFile? receipt, CancellationToken token)
+    public async Task<IActionResult> CreateAppeal([FromForm] CreateAppealDto appeal, CancellationToken token)
     {
-        string? accessToken = HttpContext.Request.Cookies["jwt-access"];
+        //string? accessToken = HttpContext.Request.Cookies["jwt-access"];
+        //if (string.IsNullOrEmpty(accessToken)) return BadRequest("Cookies not found");
         if (!ModelState.IsValid) return BadRequest();
-        if (receipt == null) return BadRequest("Receipt was not uploaded");
-        if (receipt.ContentType != "application/pdf") return BadRequest("Receipt should be in pdf format");
-        appeal.Receipt = receipt;
+        if (appeal.Receipt == null) return BadRequest("Receipt was not uploaded");
+        if (appeal.Receipt.ContentType != "application/pdf") return BadRequest("Receipt should be in pdf format");
         try
         {
-            await _service.CreateAppealAsync(appeal, accessToken, token);
+            await _service.CreateAppealAsync(appeal, appeal.Receipt, "", token);
             return Ok("Appeal submitted");
         }
         catch (HttpRequestException e)
@@ -66,6 +65,10 @@ public class AppealsController : ControllerBase
             await _service.DeleteAppealAsync(id, token);
             return Ok("Appeal deleted");
         }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
         catch (Exception e)
         {
             return StatusCode(500, e.Message);
@@ -77,12 +80,8 @@ public class AppealsController : ControllerBase
     {
         var receipt = await _service.GetReceiptById(id);
         if (receipt == null) return BadRequest($"Receipt with id {id} is not found");
-        using var memoryStream = new MemoryStream();
-        var path = receipt.Path + receipt.Name;
-        using var stream = new FileStream(_env.WebRootPath + receipt.Path, FileMode.Open);
-        await stream.CopyToAsync(memoryStream, token);
-        memoryStream.Position = 0;
-        return File(memoryStream, "application/pdf", Path.GetFileName(path));
+        var file = await System.IO.File.ReadAllBytesAsync(_env.WebRootPath + receipt.Path, token);
+        return File(file, "application/pdf", receipt.Name + ".pdf");
     }
 
 

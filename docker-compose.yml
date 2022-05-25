@@ -10,15 +10,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "AuthSettings:RefreshTokenPath=http://auth_server:8000/api/v1/refresh"
-      - SecretKey=X]E&`I"mCdS1Y3uD+}_*lU?0~@|S6c
-   # depends_on:
-   #   - auth_server
-   #   - crypto_server
-   #   - lotserver
-   #   - appeals_server
-   #   - wallets_server
-   #   - chat_server
-   #   - trade_server
+    depends_on:
+      - auth_server
+      - crypto_server
+      - lotserver
+      - appeals_server
+      - wallets_server
+      - chat_server
+      - trade_server
     ports:
       - "3227:80"
     
@@ -156,7 +155,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0xe35ab474De603a4e50E462Cb7a9Cd548eB3e6dd6"
+      - "SmartContractSettings:TokenAddress=0x1B9a345E59b982565C242B764E6380EE3EFcE52E"
     depends_on:
       - crypto_database
       - ganache
@@ -175,7 +174,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0xe35ab474De603a4e50E462Cb7a9Cd548eB3e6dd6"
+      - "SmartContractSettings:TokenAddress=0x1B9a345E59b982565C242B764E6380EE3EFcE52E"
     depends_on:
       - crypto_database
       - ganache
@@ -253,7 +252,9 @@ services:
     container_name: appeals_database
     restart: always
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"
  
   appeals_server:
     image: appeals_server
@@ -265,7 +266,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - "ConnectionStrings:DefaultConnection=server=appeals_database;uid=root;database=appeals_db"
-      - "ApiSettings:BaseAddress=http://api_gateway:5227"
+      - "ApiSettings:UsersAddress=http://auth_server:8000"
+      - "ApiSettings:WalletsAddress=http://wallets_server:80"
     depends_on:
       - appeals_database
     ports:

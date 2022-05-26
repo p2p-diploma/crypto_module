@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using AppealService.Contexts;
 using AppealService.Dtos;
 using AppealService.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,17 +12,24 @@ public class AppealsController : ControllerBase
 {
     private readonly AppealsService _service;
     private readonly IWebHostEnvironment _env;
-    public AppealsController(AppealsService service, IWebHostEnvironment env)
+    private readonly ILogger<AppealsController> _logger;
+    public AppealsController(AppealsService service, IWebHostEnvironment env, ILogger<AppealsController> logger)
     {
         _service = service;
         _env = env;
+        _logger = logger;
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateAppeal([FromForm] CreateAppealDto appeal, CancellationToken token)
     {
-        //string? accessToken = HttpContext.Request.Cookies["jwt-access"];
-        //if (string.IsNullOrEmpty(accessToken)) return BadRequest("Cookies not found");
+        string? accessToken = HttpContext.Request.Cookies["jwt-access"];
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogWarning("Not found token in cookies");
+            return BadRequest("Cookies not found");
+        }
+        _logger.LogInformation($"Found access token in cookies: {accessToken}");
         if (!ModelState.IsValid) return BadRequest();
         if (appeal.Receipt == null) return BadRequest("Receipt was not uploaded");
         if (appeal.Receipt.ContentType != "application/pdf") return BadRequest("Receipt should be in pdf format");
@@ -32,14 +40,17 @@ public class AppealsController : ControllerBase
         }
         catch (HttpRequestException e)
         {
+            _logger.LogError($"HTTP request error: {e.StatusCode}, {e.Message}");
             return StatusCode(500, e.Message);
         }
         catch (ArgumentException e)
         {
+            _logger.LogError(e.Message);
             return BadRequest(e.Message);
         }
-        catch
+        catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return StatusCode(500, "Failed to submit appeal");
         }
     }
@@ -80,8 +91,14 @@ public class AppealsController : ControllerBase
     {
         var receipt = await _service.GetReceiptById(id);
         if (receipt == null) return BadRequest($"Receipt with id {id} is not found");
+        _logger.LogInformation($"Found receipt by id {id}: {receipt.Name}, Path: {receipt.Path}");
         var file = await System.IO.File.ReadAllBytesAsync(_env.WebRootPath + receipt.Path, token);
-        return File(file, "application/pdf", receipt.Name + ".pdf");
+        if (file.Length > 0)
+        {
+            _logger.LogInformation("Loaded file " + receipt.Name + ".pdf");
+            return File(file, "application/pdf", receipt.Name + ".pdf");
+        }
+        return StatusCode(500, "File not found");
     }
 
 
@@ -90,6 +107,11 @@ public class AppealsController : ControllerBase
         CancellationToken token)
     {
         string? accessToken = HttpContext.Request.Cookies["jwt-access"];
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogWarning("Not found token in cookies");
+            return BadRequest("Cookies not found");
+        }
         var result = await _service.FreezeAccount(buyerEmail, senderEmail, accessToken, token);
         return result.StatusCode switch
         {

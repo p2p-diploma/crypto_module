@@ -15,6 +15,7 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(opt => {
         new BadRequestObjectResult(context.ModelState.Values.First(q => q.Errors.Count > 0).Errors
             .First(er => !string.IsNullOrEmpty(er.ErrorMessage)).ErrorMessage);
 });
+builder.Logging.AddConsole();
 builder.Services.AddDbContext<AppealsContext>(options => 
     options.UseMySql(builder.Configuration["ConnectionStrings:DefaultConnection"], new MySqlServerVersion(new Version(8, 0, 11))));
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));

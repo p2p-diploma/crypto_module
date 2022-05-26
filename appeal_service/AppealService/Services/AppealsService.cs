@@ -15,14 +15,16 @@ public class AppealsService
     private readonly NotificationService _notificationService;
     private readonly AppealsContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly ILogger<AppealsService> _logger;
     public AppealsService(UsersApi usersApi, AppealsContext context, IWebHostEnvironment env, WalletsApi walletsApi,
-        NotificationService notificationService)
+        NotificationService notificationService, ILogger<AppealsService> logger)
     {
         _usersApi = usersApi;
         _context = context;
         _env = env;
         _walletsApi = walletsApi;
         _notificationService = notificationService;
+        _logger = logger;
     }
 
     public async Task CreateAppealAsync(CreateAppealDto dto, IFormFile receipt, string? accessToken, CancellationToken token)
@@ -50,6 +52,8 @@ public class AppealsService
         using (var stream = new FileStream(_env.WebRootPath + path, FileMode.Create))
         {
             await file.CopyToAsync(stream, token);
+            if(stream.Length > 0)
+                _logger.LogInformation($"Copied file {receiptName}.pdf to {path} successfully");
         }
         var receipt = new Receipt { Id = receiptId, Name = receiptName, Path = path };
         return receipt;
@@ -60,8 +64,16 @@ public class AppealsService
         if (appeal == null) throw new ArgumentException($"Appeal with id {appealId} is not found");
         _context.Appeals.Remove(appeal);
         _context.Receipts.Remove(appeal.AttachedReceipt);
-        await _context.SaveChangesAsync(token);
-        File.Delete(_env.WebRootPath + appeal.AttachedReceipt.Path);
+        try
+        {
+            await _context.SaveChangesAsync(token);
+            File.Delete(_env.WebRootPath + appeal.AttachedReceipt.Path);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            throw;
+        }
     }
 
     public async Task<IEnumerable<AppealElementDto>> GetAppealsAsync(int page, CancellationToken token)

@@ -9,23 +9,20 @@ var builder = WebApplication.CreateBuilder(args);
 var routesConfig = new ConfigurationBuilder().AddJsonFile("routes.json").Build();
 // Add services to the container.
 using var loggerFactory = LoggerFactory.Create(b => b.AddConsole());
+builder.Services.AddCors(b =>
+{
+    b.AddDefaultPolicy(c => c.SetIsOriginAllowed(_ => true).AllowCredentials().AllowAnyMethod().AllowAnyHeader());
+});
 builder.Services.AddOcelot(routesConfig);
-builder.Logging.AddConsole();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 var logger = loggerFactory.CreateLogger<Program>();
 string _refreshPath = builder.Configuration["AuthSettings:RefreshTokenPath"];
 string secretKey = builder.Configuration["SecretKey"];
+app.UseCors();
 app.UseHttpsRedirection();
+app.UseWebSockets();
 await app.UseOcelot(new OcelotPipelineConfiguration
 {
     AuthorizationMiddleware = async (context, next) =>

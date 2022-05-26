@@ -583,7 +583,23 @@
       "UpstreamPathTemplate": "/chat",
       "UpstreamHeaderTransform": {
         "Role": "U"
-      }
+      },
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
+    },
+    {
+      "DownstreamPathTemplate": "/chat/negotiate",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "chat_server",
+          "Port": 80
+        }
+      ],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      },
+      "UpstreamPathTemplate": "/chat/negotiate",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
 //Auth service
     {

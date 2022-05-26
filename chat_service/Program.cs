@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-
+builder.Logging.AddConsole();
 #region Chat provider
 builder.Services.AddSignalR();
 #endregion

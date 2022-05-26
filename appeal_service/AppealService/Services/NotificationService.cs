@@ -5,12 +5,19 @@ namespace AppealService.Services;
 
 public class NotificationService
 {
-    private const string senderEmail = "crypto.transfer.tech@gmail.com";
-    private const string senderPassword = "Casper2001!";
+    private const string SENDER_EMAIL = "crypto.transfer.tech@gmail.com";
+    private const string SENDER_PASSWORD = "Casper2001!";
+    private readonly ILogger<NotificationService> _logger;
+
+    public NotificationService(ILogger<NotificationService> logger)
+    {
+        _logger = logger;
+    }
+
     public async Task SendToSeller(string email, CancellationToken token = default)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("Cryptocurrency transfer tech support", senderEmail));
+        message.From.Add(new MailboxAddress("Cryptocurrency transfer tech support", SENDER_EMAIL));
         message.To.Add(new MailboxAddress("", email));
         message.Subject = "Information about account";
         message.Body = new TextPart("html")
@@ -20,16 +27,24 @@ public class NotificationService
                    "contact our tech support to learn more details.</i></b>"
         };
         using SmtpClient client = new SmtpClient();
-        await client.ConnectAsync("smtp.gmail.com", 587, true, token);
-        await client.AuthenticateAsync(senderEmail, senderPassword, token);
-        await client.SendAsync(message, token);
-        await client.DisconnectAsync(true, token);
+        try
+        {
+            await client.ConnectAsync("smtp.gmail.com", 465, true, token);
+            await client.AuthenticateAsync(SENDER_EMAIL, SENDER_PASSWORD, token);
+            await client.SendAsync(message, token);
+            await client.DisconnectAsync(true, token);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            throw;
+        } 
     }
     
     public async Task SendToBuyer(string email, CancellationToken token = default)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("Cryptocurrency transfer tech support", senderEmail));
+        message.From.Add(new MailboxAddress("Cryptocurrency transfer tech support", SENDER_EMAIL));
         message.To.Add(new MailboxAddress("", email));
         message.Subject = "Information about appeal";
         message.Body = new TextPart("html")
@@ -39,9 +54,17 @@ public class NotificationService
                    "Sincerely, tech support of Cryptocurrency transfer</i></b>"
         };
         using var client = new SmtpClient();
-        await client.ConnectAsync("smtp.gmail.com", 465, true, token);
-        await client.AuthenticateAsync(senderEmail, senderPassword, token);
-        await client.SendAsync(message, token);
-        await client.DisconnectAsync(true, token);
+        try
+        {
+            await client.ConnectAsync("smtp.gmail.com", 465, true, token);
+            await client.AuthenticateAsync(SENDER_EMAIL, SENDER_PASSWORD, token);
+            await client.SendAsync(message, token);
+            await client.DisconnectAsync(true, token);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            throw;
+        } 
     }
 }

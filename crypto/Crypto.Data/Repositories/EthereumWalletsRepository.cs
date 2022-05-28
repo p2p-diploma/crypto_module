@@ -42,7 +42,16 @@ public class EthereumWalletsRepository : IEthereumWalletsRepository<ObjectId>
 
     public async Task<bool> Freeze(ObjectId walletId)
     {
-        var freezeDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true);
+        var freezeDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true)
+            .Set(w => w.DateOfUnfreeze, DateTime.Now + new TimeSpan(30, 0, 0, 0));
+        var result = await Wallets.UpdateOneAsync(Builders<EthereumWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
+            freezeDef);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+    
+    public async Task<bool> Unfreeze(ObjectId walletId)
+    {
+        var freezeDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsFrozen, false).Set(w => w.DateOfUnfreeze, null);
         var result = await Wallets.UpdateOneAsync(Builders<EthereumWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
             freezeDef);
         return result.IsAcknowledged && result.ModifiedCount > 0;

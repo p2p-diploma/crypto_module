@@ -24,10 +24,12 @@ public class GetEthereumWalletByIdHandler : EthereumWalletBaseHandler<GetEthereu
         var wallet = await _repository.FindOneAndProjectAsync(w => w.Id == parsedId, wallet => wallet, token);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"Wallet with id {request.Id} is not found");
+        if (wallet.DateOfUnfreeze == DateTime.Now)
+            await _repository.Unfreeze(wallet.Id);
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceAsync(loadedAccount);
-        return new EthereumWalletResponse(balanceInEther, loadedAccount.Address);
+        return new EthereumWalletResponse(balanceInEther, loadedAccount.Address, wallet.IsFrozen);
     }
 
     

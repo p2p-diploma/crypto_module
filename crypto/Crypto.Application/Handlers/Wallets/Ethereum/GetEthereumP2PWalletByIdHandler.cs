@@ -25,10 +25,14 @@ public class GetEthereumP2PWalletByIdHandler : EthereumP2PWalletBaseHandler<GetE
         var wallet = await _repository.FindOneAndProjectAsync(w => w.Id == parsedId, wallet => wallet, cancellationToken);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"P2P wallet with id {request.WalletId} is not found");
+        if (wallet.DateOfUnfreeze == DateTime.Now)
+        {
+            await _repository.Unfreeze(wallet.Id);
+        }
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceAsync(loadedAccount);
-        return new(loadedAccount.Address, balanceInEther);
+        return new(loadedAccount.Address, balanceInEther, wallet.IsFrozen);
     }
 
     

@@ -24,9 +24,13 @@ public class GetEthereumP2PWalletByEmailHandler
         var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, wallet => wallet, cancellationToken);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new AccountNotFoundException($"P2P wallet with email {request.Email} is not found");
+        if (wallet.DateOfUnfreeze == DateTime.Now)
+        {
+            await _repository.Unfreeze(wallet.Id);
+        }
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var balanceInEther = await _accountManager.GetAccountBalanceAsync(loadedAccount);
-        return new(wallet.Id.ToString(), loadedAccount.Address, balanceInEther);
+        return new(wallet.Id.ToString(), loadedAccount.Address, balanceInEther, wallet.IsFrozen);
     }
 }

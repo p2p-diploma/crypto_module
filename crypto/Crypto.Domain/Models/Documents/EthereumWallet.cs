@@ -8,4 +8,5 @@ public record EthereumWallet<TId> : IWallet<TId> {
     public string Hash { get; set; }
     public KeyStore<ScryptParams> KeyStore { get; set; }
     public bool IsFrozen { get; set; } = false;
+    public DateTime? DateOfUnfreeze { get; set; } = null;
 }

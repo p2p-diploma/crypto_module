@@ -9,4 +9,5 @@ public interface IEthereumP2PWalletsRepository<TId> : IWalletsRepository<Ethereu
     Task<EthereumP2PWallet<TId>> UpdateAmountToBuyAsync(TId walletId, decimal amount, string currencyType, CancellationToken token = default);
     Task<EthereumP2PWallet<TId>> UpdateAmountToSellAsync(TId walletId, decimal amount, string currencyType, CancellationToken token = default);
     Task<bool> Freeze(TId walletId);
+    Task<bool> Unfreeze(TId walletId);
 }

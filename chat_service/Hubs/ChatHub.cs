@@ -6,7 +6,7 @@ namespace ChatService.Hubs;
 public class ChatHub : Hub
 {
     private readonly IDatabase db;
-    private ILogger<ChatHub> _logger;
+    private readonly ILogger<ChatHub> _logger;
     public ChatHub(IConnectionMultiplexer redis, ILogger<ChatHub> logger)
     {
         _logger = logger;

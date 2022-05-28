@@ -23,7 +23,14 @@ public class GetEthereumPrivateKeyHandler : EthereumWalletBaseHandler<GetPrivate
         var id = ObjectId.Parse(request.Id);
         var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, w => w, cancellationToken);
         if (wallet == null || wallet.Id != id) throw new PermissionDeniedException("You are unauthorized");
-        if (wallet.IsFrozen) throw new AccountFrozenException("Sorry, but your account is frozen");
+        if (wallet.DateOfUnfreeze == DateTime.Now)
+        {
+            await _repository.Unfreeze(wallet.Id);
+        }
+        else
+        {
+            if (wallet.IsFrozen) throw new AccountFrozenException("Sorry, but your account is frozen");
+        }
         var keyService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(keyService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         return account.PrivateKey;

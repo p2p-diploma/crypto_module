@@ -27,9 +27,11 @@ public class GetERC20WalletByEmailHandler : EthereumWalletBaseHandler<GetErc20Wa
         var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, wallet => wallet, cancellationToken);
         if (wallet == null || wallet.Id == ObjectId.Empty)
             throw new ArgumentException($"Token wallet with email {request.Email} does not exist");
+        if (wallet.DateOfUnfreeze == DateTime.Now)
+            await _repository.Unfreeze(wallet.Id);
         var scryptService = new KeyStoreScryptService();
         var loadedAccount = _accountManager.LoadAccountFromKeyStore(scryptService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);
         var tokensAmount = await _accountManager.GetAccountBalanceAsync(loadedAccount);
-        return new(wallet.Id.ToString(), loadedAccount.Address, tokensAmount);
+        return new(wallet.Id.ToString(), loadedAccount.Address, tokensAmount, wallet.IsFrozen);
     }
 }

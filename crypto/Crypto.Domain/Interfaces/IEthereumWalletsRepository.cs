@@ -6,4 +6,5 @@ namespace Crypto.Domain.Interfaces;
 public interface IEthereumWalletsRepository<TId> : IWalletsRepository<EthereumWallet<TId>, TId>
 {
     Task<bool> Freeze(TId walletId);
+    Task<bool> Unfreeze(TId walletId);
 }

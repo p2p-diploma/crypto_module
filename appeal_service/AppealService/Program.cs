@@ -1,3 +1,4 @@
+using AppealService;
 using AppealService.Api;
 using AppealService.Api.Config;
 using AppealService.Contexts;
@@ -19,9 +20,11 @@ builder.Logging.AddConsole();
 builder.Services.AddDbContext<AppealsContext>(options => 
     options.UseMySql(builder.Configuration["ConnectionStrings:DefaultConnection"], new MySqlServerVersion(new Version(8, 0, 11))));
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<AppealsService>();
 builder.Services.AddTransient<UsersApi>();
 builder.Services.AddTransient<WalletsApi>();
+builder.Services.AddTransient<TransactionsApi>();
 builder.Services.AddTransient<NotificationService>();
 builder.Services.AddCors();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,17 +1,19 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace AppealService.Services;
 
 public class NotificationService
 {
-    private const string SENDER_EMAIL = "crypto.transfer.tech@gmail.com";
-    private const string SENDER_PASSWORD = "Casper2001!";
     private readonly ILogger<NotificationService> _logger;
-
-    public NotificationService(ILogger<NotificationService> logger)
+    private readonly string SENDER_EMAIL;
+    private readonly string SENDER_PASSWORD;
+    public NotificationService(ILogger<NotificationService> logger, IOptions<EmailSettings> settings)
     {
         _logger = logger;
+        SENDER_EMAIL = settings.Value.Email;
+        SENDER_PASSWORD = settings.Value.Password;
     }
 
     public async Task SendToSeller(string email, CancellationToken token = default)

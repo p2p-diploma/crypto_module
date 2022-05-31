@@ -93,7 +93,15 @@ public class ERC20TransferController : ControllerBase
         {
             return Ok(await _mediator.Send(command, token));
         }
+        catch (AccountNotFoundException e)
+        {
+            return BadRequest(e.Message);
+        }
         catch (AccountBalanceException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountFrozenException e)
         {
             return BadRequest(e.Message);
         }

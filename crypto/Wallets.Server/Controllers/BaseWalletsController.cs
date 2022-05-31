@@ -134,7 +134,14 @@ public class BaseWalletsController : ControllerBase
     public async Task<IActionResult> FreezeWallet(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(id), token);
-        return allFrozen ? Ok("Wallets are successfully frozen") : StatusCode(500, "Failed to freeze wallets");
+        try
+        {
+            var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(id), token);
+            return allFrozen ? Ok("Wallets are successfully frozen") : StatusCode(500, "Failed to freeze wallets");
+        }
+        catch (AccountNotFoundException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }

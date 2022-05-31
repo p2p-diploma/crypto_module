@@ -69,7 +69,7 @@ await app.UseOcelot(new OcelotPipelineConfiguration
                             {
                                 logger.LogInformation($"Found expiry date in token: {exp}");
                                 var leftExpiryTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(exp)).DateTime;
-                                if (DateTime.Now - leftExpiryTime <= TimeSpan.FromMinutes(2))
+                                if (leftExpiryTime < DateTime.Now || leftExpiryTime - DateTime.Now <= TimeSpan.FromMinutes(2))
                                 {
                                     logger.LogWarning("Token needs to be refreshed");
                                     using var client = new HttpClient();

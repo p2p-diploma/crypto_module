@@ -12,12 +12,13 @@ public class AppealsService
 {
     private readonly UsersApi _usersApi;
     private readonly WalletsApi _walletsApi;
+    private readonly TransactionsApi _transactionsApi;
     private readonly NotificationService _notificationService;
     private readonly AppealsContext _context;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<AppealsService> _logger;
     public AppealsService(UsersApi usersApi, AppealsContext context, IWebHostEnvironment env, WalletsApi walletsApi,
-        NotificationService notificationService, ILogger<AppealsService> logger)
+        NotificationService notificationService, ILogger<AppealsService> logger, TransactionsApi transactionsApi)
     {
         _usersApi = usersApi;
         _context = context;
@@ -25,6 +26,7 @@ public class AppealsService
         _walletsApi = walletsApi;
         _notificationService = notificationService;
         _logger = logger;
+        _transactionsApi = transactionsApi;
     }
 
     public async Task CreateAppealAsync(CreateAppealDto dto, IFormFile receipt, string? accessToken, CancellationToken token)
@@ -36,7 +38,7 @@ public class AppealsService
         var createdReceipt = await AddReceiptAsync(receipt, buyer.FullName, token);
         var appeal = new Appeal
         {
-            LotId = dto.LotId, CreatedAt = DateTime.Now,
+            TransactionId = dto.TransactionId, CreatedAt = DateTime.Now,
             BuyerEmail = buyer.Email, BuyerName = buyer.FullName,
             SellerEmail = seller.Email, SellerName = seller.FullName,
             AttachedReceipt = createdReceipt
@@ -81,18 +83,35 @@ public class AppealsService
         int rowsToSkip = 0;
         if (page >= 2) rowsToSkip = (page - 1) * 10;
         return await _context.Appeals.AsNoTracking()
-            .OrderBy(a => a.LotId).Skip(rowsToSkip).Take(10)
-            .Select(a => new AppealElementDto(a.LotId, a.BuyerEmail, a.SellerEmail, a.CreatedAt.ToShortDateString(), a.Id)).ToListAsync(token);
+            .OrderBy(a => a.TransactionId).Skip(rowsToSkip).Take(10)
+            .Select(a => new AppealElementDto(a.TransactionId, a.BuyerEmail, a.SellerEmail, a.CreatedAt.ToShortDateString(), a.Id)).ToListAsync(token);
     }
 
-    public async Task<AppealDto?> GetAppealByIdAsync(Guid appealId, CancellationToken token)
+    public async Task<AppealDto?> GetAppealByIdAsync(Guid appealId, string accessToken, CancellationToken token)
     {
-       return await _context.Appeals.Include(a => a.AttachedReceipt).Select(a => new AppealDto
-           {
-               BuyerEmail = a.BuyerEmail, Id = a.Id, LotId = a.LotId, Receipt = a.AttachedReceipt.Name,
-               ReceiptId = a.AttachedReceipt.Id, SellerEmail = a.SellerEmail
-           })
-           .FirstOrDefaultAsync(a => a.Id == appealId, cancellationToken: token);
+        var appeal = await _context.Appeals.Include(a => a.AttachedReceipt).Select(a => new Appeal
+        {
+            BuyerEmail = a.BuyerEmail, Id = a.Id, TransactionId = a.TransactionId,
+            AttachedReceipt = new()
+            {
+                Name = a.AttachedReceipt.Name,
+                Id = a.AttachedReceipt.Id
+            },
+            SellerEmail = a.SellerEmail
+        }).FirstOrDefaultAsync(a => a.Id == appealId, cancellationToken: token);
+        if (appeal == null) return null;
+        var transaction = await _transactionsApi.GetById(appeal.TransactionId, accessToken, token);
+        if (transaction == null) return null;
+        return new AppealDto
+        {
+            Id = appealId, Receipt = appeal.AttachedReceipt.Name,
+            Transaction = new TransactionDto
+            {
+                BuyerEmail = transaction.BuyerEmail, CreatedAt = transaction.CreatedAt, UpdatedAt = transaction.UpdatedAt,
+                SellerEmail = transaction.SellerEmail, Status = transaction.Status
+            },
+            BuyerEmail = appeal.BuyerEmail, ReceiptId = appeal.AttachedReceipt.Id, SellerEmail = appeal.SellerEmail
+        };
     }
     public async Task<Receipt?> GetReceiptById(Guid id)
     {

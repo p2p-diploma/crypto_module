@@ -2,9 +2,11 @@
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Models;
 using Microsoft.Extensions.Logging;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.KeyStore;
 using Nethereum.KeyStore.Model;
 using Nethereum.Signer;
+using Nethereum.Signer.Crypto;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 

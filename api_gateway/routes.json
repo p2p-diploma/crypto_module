@@ -763,7 +763,7 @@
     },
     //Trade
     {
-      "DownstreamPathTemplate": "/api/v1/trade",
+      "DownstreamPathTemplate": "/api/v1/trade/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -773,6 +773,36 @@
       ],
       "UpstreamPathTemplate": "/trade",
       "UpstreamHttpMethod": ["Post"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/trade/{offset}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "trade_server",
+          "Port": 8000
+        }
+      ],
+      "UpstreamPathTemplate": "/trade/{offset}",
+      "UpstreamHttpMethod": ["Get"],
+      "UpstreamHeaderTransform": {
+        "Role": "U"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/trade/transaction/{transaction_id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "trade_server",
+          "Port": 8000
+        }
+      ],
+      "UpstreamPathTemplate": "/trade/transaction/{transaction_id}",
+      "UpstreamHttpMethod": ["Get"],
       "UpstreamHeaderTransform": {
         "Role": "U"
       }

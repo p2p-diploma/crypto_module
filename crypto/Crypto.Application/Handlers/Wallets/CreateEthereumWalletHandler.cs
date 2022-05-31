@@ -45,6 +45,4 @@ public class CreateEthereumWalletHandler : EthereumWalletBaseHandler<CreateEther
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }
-
-    
 }

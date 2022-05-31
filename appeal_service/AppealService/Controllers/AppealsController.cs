@@ -63,8 +63,14 @@ public class AppealsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAppeal(Guid id, CancellationToken token)
     {
+        string? accessToken = HttpContext.Request.Cookies["jwt-access"];
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogWarning("Not found token in cookies");
+            return BadRequest("Cookies not found");
+        }
         if (id == Guid.Empty) return BadRequest("Appeal id is invalid");
-        return Ok(await _service.GetAppealByIdAsync(id, token));
+        return Ok(await _service.GetAppealByIdAsync(id, accessToken, token));
     }
 
     [HttpDelete("{id}")]

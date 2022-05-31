@@ -1,5 +1,6 @@
 ﻿using Crypto.Application.Commands.Wallets;
 using Crypto.Application.Handlers.Base;
+using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using MongoDB.Bson;
 
@@ -17,6 +18,8 @@ public class FreezeEthereumWalletHandler : EthereumWalletBaseHandler<FreezeEther
     public override async Task<bool> Handle(FreezeEthereumWalletCommand request, CancellationToken cancellationToken)
     {
         var walletId = ObjectId.Parse(request.WalletId);
+        if (!await _repository.ExistsAsync(s => s.Id == walletId, cancellationToken))
+            throw new AccountNotFoundException($"Wallet with id {walletId} is not found");
         return (await Task.WhenAll(_repository.Freeze(walletId), _p2PWalletsRepository.Freeze(walletId))).All(r => r);
     }
 }

@@ -7,6 +7,9 @@ using Crypto.Domain.Models;
 using Crypto.Domain.Models.Documents;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
+using NBitcoin.Secp256k1;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Signer.Crypto;
 using Nethereum.Web3.Accounts;
 using static BCrypt.Net.BCrypt;
 namespace Crypto.Application.Handlers.Wallets;
@@ -29,9 +32,6 @@ public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumW
     {
         if (await _repository.ExistsAsync(w => w.Email == command.Email, token))
             throw new ArgumentException($"Wallet with email {command.Email} already exists");
-        if (string.IsNullOrWhiteSpace(command.PrivateKey) ||
-            command.PrivateKey.CompareTo("ffffffff ffffffff ffffffff fffffffe baaedce6 af48a03b bfd25e8c d0364141") >= 0)
-            throw new ArgumentException("Specified private key is invalid: can't load account");
         Account loadedAccount;
         try
         {
@@ -66,6 +66,4 @@ public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumW
         await _p2pWalletsRepository.CreateAsync(wallet, token);
         return null;
     }
-
-   
 }

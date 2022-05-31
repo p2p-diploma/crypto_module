@@ -13,7 +13,7 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/eth/transfer")]
-//[TokenAuthorize(Roles.USER)]
+///[TokenAuthorize(Roles.USER)]
 public class EthereumTransferController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -72,7 +72,15 @@ public class EthereumTransferController : ControllerBase
         {
             return Ok(await _mediator.Send(command, token));
         }
+        catch (AccountNotFoundException e)
+        {
+            return BadRequest(e.Message);
+        }
         catch (AccountBalanceException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AccountFrozenException e)
         {
             return BadRequest(e.Message);
         }

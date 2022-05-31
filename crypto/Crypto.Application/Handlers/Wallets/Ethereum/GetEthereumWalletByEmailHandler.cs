@@ -46,6 +46,4 @@ public class GetEthereumWalletByEmailHandler : EthereumWalletBaseHandler<GetEthe
         }
         return new(walletWithNoBalance.Id.ToString(), decimal.Zero, walletWithNoBalance.Address, walletWithNoBalance.IsFrozen);
     }
-
-    
 }

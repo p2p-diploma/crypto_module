@@ -37,6 +37,7 @@ public class EthereumAccountManager
     {
         var key = new EthECKey(privateKey);
         byte[] generatedPrivateKey = key.GetPrivateKeyAsBytes();
+        if (generatedPrivateKey.Length != 32) throw new ArgumentException("Private key is too short");
         var generatedAddress = key.GetPublicAddress();
         var keyStore = new KeyStoreScryptService();
         _logger.LogInformation($"Imported private key: {privateKey}, address: {generatedAddress}");

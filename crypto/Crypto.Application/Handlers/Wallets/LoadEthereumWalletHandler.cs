@@ -32,18 +32,8 @@ public class LoadEthereumWalletHandler : EthereumWalletBaseHandler<LoadEthereumW
     {
         if (await _repository.ExistsAsync(w => w.Email == command.Email, token))
             throw new ArgumentException($"Wallet with email {command.Email} already exists");
-        Account loadedAccount;
-        try
-        {
-            loadedAccount = new Account(command.PrivateKey, _accountManager.ChainId);
-            _logger.LogInformation($"Loaded account for {command.Email} with private key {loadedAccount.PrivateKey}," +
-                                   $" address {loadedAccount.Address}");
-        }
-        catch (Exception e)
-        {
-            _logger.LogError("Failed to load account: " + e.Message);
-            throw new ArgumentException("Failed to import wallet: perhaps private key is invalid");
-        }
+        Account loadedAccount = new Account(command.PrivateKey, _accountManager.ChainId);
+        _logger.LogInformation($"Loaded account for {command.Email} with private key {loadedAccount.PrivateKey}, address {loadedAccount.Address}");
         var walletId = ObjectId.GenerateNewId(DateTime.Now);
         var passwordHash = HashPassword(command.Password);
         var createdWallets = await Task.WhenAll(LoadPlatformWallet(loadedAccount, walletId, command.Email, passwordHash, token),

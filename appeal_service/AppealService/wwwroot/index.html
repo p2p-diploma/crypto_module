@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title><script src="https://code.jquery.com/jquery-3.6.0.slim.js" 
+                                integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" 
+                                crossorigin="anonymous"></script>
+</head>
+<body>
+    <label for="buyer">Buyer</label><input type="text" id="buyer"><br><br>
+    <label for="seller">Seller</label><input type="text" id="seller"><br><br>
+    <label for="lotId">Lot id</label><input type="text" id="lotId"><br><br>
+    <input type="file" id="receipt">
+    <button type="submit" id="submit">Submit</button>
+<script>
+    $('#submit').click(function(e){
+        let data = new FormData();
+        data.append("buyerEmail", $('#buyer').val());
+        alert($('#buyer').val());
+        data.append("sellerEmail", $('#seller').val());
+        data.append("lotId", $('#lotId').val())
+        data.append("receipt", $('#receipt').prop('files')[0]);
+        fetch("https://localhost:44374/api/v1/appeals/create", {method: 'POST', body: data})
+            .then(response => alert(response.statusText)).catch(err => alert(err))
+    });
+</script>
+</body>
+</html>

@@ -3,12 +3,10 @@ using AppealService.Api;
 using AppealService.Api.Config;
 using AppealService.Contexts;
 using AppealService.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(opt => {
@@ -22,7 +20,6 @@ builder.Services.AddDbContext<AppealsContext>(options =>
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<AppealsService>();
-builder.Services.AddTransient<UsersApi>();
 builder.Services.AddTransient<WalletsApi>();
 builder.Services.AddTransient<TransactionsApi>();
 builder.Services.AddTransient<NotificationService>();

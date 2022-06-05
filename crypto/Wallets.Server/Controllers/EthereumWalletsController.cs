@@ -21,9 +21,11 @@ namespace Wallets.Server.Controllers;
 public class EthereumWalletsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public EthereumWalletsController(IMediator mediator)
+    private readonly ILogger<EthereumWalletsController> _logger;
+    public EthereumWalletsController(IMediator mediator, ILogger<EthereumWalletsController> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
 
     [HttpGet("{id}/privateKey")]
@@ -495,14 +497,17 @@ public class EthereumWalletsController : ControllerBase
         }
         catch (ArgumentException e)
         {
+            _logger.LogError(e.Message);
             return BadRequest(e.Message);
         }
         catch (AccountNotFoundException e)
         {
+            _logger.LogError(e.Message);
             return NotFound(e.Message);
         }
         catch (Exception e)
         {
+            _logger.LogError(e.Message);
             return StatusCode(500, e.Message);
         }
     }
@@ -534,6 +539,7 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> IncreaseAmountToSell([FromBody] IncreaseAmountToSellCommand command, CancellationToken token)
     {
+        _logger.LogInformation($"Increase to sell: walletId {command.WalletId}, amount {command.Amount}");
         try
         {
             command.CurrencyType = CurrencyType.ETH;

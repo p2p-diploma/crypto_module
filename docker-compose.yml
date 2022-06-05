@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-#API gateway
+  #API gateway
   api_gateway:
     image: ${DOCKER_REGISTRY-}api_gateway
     container_name: api_gateway
@@ -9,21 +9,23 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - "AuthSettings:RefreshTokenPath=http://auth_server:8000/api/v1/refresh"
-   # depends_on:
-   #   - auth_server
-   #   - crypto_server
-   #   - lotserver
-   #   - appeals_server
-   #   - wallets_server
-   #   - chat_server
-   #   - trade_server
+      - "AuthSettings:AuthPath=http://auth_server:8000"
+      - "AuthSettings:RefreshTokenPath=/api/v1/refresh"
+      - SecretKey=X]E&`I\"mCdS1Y3uD+}_*lU?0~@|S6c
+    #depends_on:
+    #  - auth_server
+    #  - crypto_server
+    #  - lotserver
+    #  - appeals_server
+    #  - wallets_server
+    #  - chat_server
+    #  - trade_server
     ports:
       - "3227:80"
-    
 
-#For notification service
+  #For notification service
   notification_server:
+    container_name: notification_server
     build: notification_module
     depends_on:
       - notification-server-migrate
@@ -34,6 +36,7 @@ services:
     env_file: notification_module/.env
 
   notification_db:
+    container_name: notification_db
     image: postgres:14
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
@@ -46,6 +49,7 @@ services:
       - notification-postgres-data:/var/lib/postgresql/data
 
   notification-server-migrate:
+    container_name: notification_migrate
     build: notification_module
     depends_on:
       notification_db:
@@ -54,12 +58,14 @@ services:
     env_file: notification_module/.env
 
   consumer:
+    container_name: consumer
     build: notification_module
     depends_on: [ broker ]
     env_file: notification_module/.consumer.env
 
-#For authorization service
+  #For authorization service
   auth_server:
+    container_name: auth_server
     build: auth_module
     depends_on:
       - auth_migrate
@@ -68,6 +74,7 @@ services:
     env_file: auth_module/.env
 
   auth_db:
+    container_name: auth_db
     image: postgres:14
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
@@ -80,6 +87,7 @@ services:
       - postgres-data-auth:/var/lib/postgresql/data
 
   auth_migrate:
+    container_name: auth_migrate
     build: auth_module
     depends_on:
       auth_db:
@@ -87,10 +95,10 @@ services:
     entrypoint: [ "alembic", "upgrade", "head" ]
     env_file: auth_module/.env
 
-
-#Trade service
+  #Trade service
   trade_server:
     build: trade_module
+    container_name: trade_server
     depends_on:
       - trade_migrate
     ports:
@@ -98,6 +106,7 @@ services:
     env_file: trade_module/.env
 
   trade_db:
+    container_name: trade_db
     image: postgres:14
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
@@ -113,6 +122,7 @@ services:
 
   trade_migrate:
     build: trade_module
+    container_name: trade_migrate
     depends_on:
       trade_db:
         condition: service_healthy
@@ -120,6 +130,7 @@ services:
     env_file: trade_module/.env
 
   celery:
+    container_name: celery
     build: trade_module
     depends_on: [ broker, trade_server ]
     entrypoint: "celery -A core.celery_app.celery worker --loglevel=info"
@@ -127,12 +138,12 @@ services:
       - trade_module/.env
 
   broker:
+    container_name: broker
     image: redis:6
     ports:
       - "6379:6379"
 
-
-#For crypto and wallet microservices
+  #For crypto and wallet microservices
   ganache:
     image: trufflesuite/ganache-cli
     container_name: ganache
@@ -159,14 +170,14 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x1B9a345E59b982565C242B764E6380EE3EFcE52E"
+      - "SmartContractSettings:TokenAddress=0x7DF9D3654d9bbF6FcC132e50CaB27Fa31458FfC8"
     depends_on:
       - crypto_database
       - ganache
       - wallets_server
     ports:
       - "5227:80"
-        
+
   wallets_server:
     image: ${DOCKER_REGISTRY-}wallets_server
     container_name: wallets_server
@@ -178,21 +189,21 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - "DatabaseSettings:ConnectionString=mongodb://crypto_database:27017"
       - "BlockchainConnections:Ganache=http://ganache:8545"
-      - "SmartContractSettings:TokenAddress=0x1B9a345E59b982565C242B764E6380EE3EFcE52E"
+      - "SmartContractSettings:TokenAddress=0x7DF9D3654d9bbF6FcC132e50CaB27Fa31458FfC8"
     depends_on:
       - crypto_database
       - ganache
     ports:
       - "6227:80"
 
-#Lot service
+  #Lot service
   lot_db:
     image: postgres:14
     container_name: lot_db
     environment:
       PGUSER: postgres
       POSTGRES_DB: lot_db
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: 1337
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
       interval: 1s
@@ -204,6 +215,7 @@ services:
       - 5432:5432
 
   lot_migration:
+    container_name: lot_migration
     restart: "no"
     depends_on:
       lot_db:
@@ -211,7 +223,7 @@ services:
     build: lot_service
     entrypoint: python manage.py migrate
     env_file:
-    - lot_service/.env
+      - lot_service/.env
 
   lotserver:
     platform: linux/amd64
@@ -220,20 +232,20 @@ services:
     image: lot_service
     env_file:
       - lot_service/.env
-    depends_on: [lot_db, lot_migration]
+    depends_on: [ lot_db, lot_migration ]
     volumes:
       - ./lot_service/:/app
       - .:/lot_service
     ports:
       - "8227:8000"
 
-#Chat service
+  #Chat service
   chat_database:
     image: redis
     container_name: chat_database
     restart: always
     ports:
-      - "5379:6379"
+      - "5379:5379"
 
   chat_server:
     image: chat_server
@@ -249,8 +261,7 @@ services:
     ports:
       - "7227:80"
 
-
-#Appeals
+  #Appeals
   appeals_database:
     image: mysql
     container_name: appeals_database
@@ -259,11 +270,11 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3306:3306"
- 
+
   appeals_server:
     image: appeals_server
     container_name: appeals_server
-    build: 
+    build:
       context: appeal_service/AppealService
       dockerfile: ./Dockerfile
     environment:

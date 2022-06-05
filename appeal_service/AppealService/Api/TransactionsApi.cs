@@ -15,9 +15,9 @@ public class TransactionsApi : BaseHttpClientFactory
         _builder.AddToPath(_settings.TradesPath);
     }
 
-    public async Task<Transaction?> GetById(string transactionId, string accessToken, CancellationToken token)
+    public async Task<TransactionResponse?> GetById(string transactionId, string accessToken, CancellationToken token)
     {
         using var message = _builder.AddToPath($"/{transactionId}").HttpMethod(HttpMethod.Get).HttpMessage;
-        return await GetResponseAsync<Transaction>(message, accessToken, token);
+        return await GetResponseAsync<TransactionResponse>(message, accessToken, token);
     }
 }

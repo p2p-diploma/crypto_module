@@ -11,4 +11,5 @@ public sealed class AppealsContext : DbContext
     }
     public DbSet<Appeal> Appeals { get; set; }
     public DbSet<Receipt> Receipts { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
 }

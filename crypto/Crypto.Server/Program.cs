@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 #region MediatR, FluentValidation, Controllers
-builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RefundEtherFromP2PWalletValidator>())
+builder.Services.AddControllers().AddNewtonsoftJson().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RefundEtherFromP2PWalletValidator>())
     .ConfigureApiBehaviorOptions(opt => {
         opt.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(context.ModelState.Values.First(q => q.Errors.Count > 0).Errors.First(er => !string.IsNullOrEmpty(er.ErrorMessage)).ErrorMessage);
     });

@@ -3,6 +3,7 @@ using AppealService.Contexts;
 using AppealService.Dtos;
 using AppealService.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppealService.Controllers;
 
@@ -20,6 +21,12 @@ public class AppealsController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("count")]
+    public async Task<int> GetAppealsCount([FromServices] AppealsContext context, CancellationToken token)
+    {
+        return await context.Appeals.CountAsync(token);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateAppeal([FromForm] CreateAppealDto appeal, CancellationToken token)
     {
@@ -35,13 +42,8 @@ public class AppealsController : ControllerBase
         if (appeal.Receipt.ContentType != "application/pdf") return BadRequest("Receipt should be in pdf format");
         try
         {
-            await _service.CreateAppealAsync(appeal, appeal.Receipt, "", token);
+            await _service.CreateAppealAsync(appeal, accessToken:accessToken, appeal.Receipt, token);
             return Ok("Appeal submitted");
-        }
-        catch (HttpRequestException e)
-        {
-            _logger.LogError($"HTTP request error: {e.StatusCode}, {e.Message}");
-            return StatusCode(500, e.Message);
         }
         catch (ArgumentException e)
         {
@@ -58,10 +60,18 @@ public class AppealsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAppeals(CancellationToken token, int page = 1)
     {
-        return Ok(await _service.GetAppealsAsync(page, token));
+        return Ok(await _service.GetAppealsAsync(page, token: token));
     }
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAppeal(Guid id, CancellationToken token)
+    {
+        if (id == Guid.Empty) return BadRequest("Appeal id is invalid");
+        return Ok(await _service.GetAppealByIdAsync(id, token));
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAppeal(Guid id, CancellationToken token)
     {
         string? accessToken = HttpContext.Request.Cookies["jwt-access"];
         if (string.IsNullOrEmpty(accessToken))
@@ -69,13 +79,6 @@ public class AppealsController : ControllerBase
             _logger.LogWarning("Not found token in cookies");
             return BadRequest("Cookies not found");
         }
-        if (id == Guid.Empty) return BadRequest("Appeal id is invalid");
-        return Ok(await _service.GetAppealByIdAsync(id, accessToken, token));
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAppeal(Guid id, CancellationToken token)
-    {
         if (id == Guid.Empty) return BadRequest("Appeal id is invalid");
         try
         {
@@ -95,6 +98,12 @@ public class AppealsController : ControllerBase
     [HttpGet("receipt/{id}")]
     public async Task<IActionResult> DownloadReceipt(Guid id, CancellationToken token)
     {
+        string? accessToken = HttpContext.Request.Cookies["jwt-access"];
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            _logger.LogWarning("Not found token in cookies");
+            return BadRequest("Cookies not found");
+        }
         var receipt = await _service.GetReceiptById(id);
         if (receipt == null) return BadRequest($"Receipt with id {id} is not found");
         _logger.LogInformation($"Found receipt by id {id}: {receipt.Name}, Path: {receipt.Path}");

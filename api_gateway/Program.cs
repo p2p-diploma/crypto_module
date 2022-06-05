@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -19,6 +20,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 var logger = loggerFactory.CreateLogger<Program>();
 string _refreshPath = builder.Configuration["AuthSettings:RefreshTokenPath"];
+string _authPath = builder.Configuration["AuthSettings:AuthPath"];
 string secretKey = builder.Configuration["SecretKey"];
 app.UseCors();
 app.UseHttpsRedirection();
@@ -47,6 +49,7 @@ await app.UseOcelot(new OcelotPipelineConfiguration
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
                     };
+                    logger.LogInformation($"Signature: {secretKey}");
                     SecurityToken? validatedToken;
                     try
                     {
@@ -72,10 +75,20 @@ await app.UseOcelot(new OcelotPipelineConfiguration
                                 if (leftExpiryTime < DateTime.Now || leftExpiryTime - DateTime.Now <= TimeSpan.FromMinutes(2))
                                 {
                                     logger.LogWarning("Token needs to be refreshed");
-                                    using var client = new HttpClient();
-                                    var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Post, _refreshPath));
+                                    var cookies = new CookieContainer();
+                                    var baseAddress = new Uri(_authPath);
+                                    using var clientHandler = new HttpClientHandler { CookieContainer = cookies };
+                                    cookies.Add(baseAddress, new Cookie("jwt-access", access_token));
+                                    using var client = new HttpClient(clientHandler){ BaseAddress = baseAddress };
+                                    using var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Post, _refreshPath));
                                     if(response.IsSuccessStatusCode)
                                         logger.LogInformation("Refreshed token");
+                                    else
+                                    {
+                                        logger.LogError("Failed to refresh:" +
+                                                        $" response url: {response.RequestMessage?.RequestUri}, " +
+                                                        $"response message: {response.ReasonPhrase}, {response.StatusCode}");
+                                    }
                                 }
                                 isAuthorized = true;
                                 logger.LogInformation("Successful authorization");

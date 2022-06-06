@@ -77,8 +77,11 @@ await app.UseOcelot(new OcelotPipelineConfiguration
                                     logger.LogWarning("Token needs to be refreshed");
                                     var cookies = new CookieContainer();
                                     var baseAddress = new Uri(_authPath);
+                                    string? refreshToken = context.Request.Cookies["jwt-refresh"];
+                                    logger.LogInformation($"Old refresh token: {refreshToken}");
                                     using var clientHandler = new HttpClientHandler { CookieContainer = cookies };
                                     cookies.Add(baseAddress, new Cookie("jwt-access", access_token));
+                                    cookies.Add(baseAddress, new Cookie("jwt-refresh", refreshToken));
                                     using var client = new HttpClient(clientHandler){ BaseAddress = baseAddress };
                                     using var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Post, _refreshPath));
                                     if(response.IsSuccessStatusCode)

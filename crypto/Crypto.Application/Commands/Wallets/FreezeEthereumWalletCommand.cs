@@ -2,4 +2,4 @@
 
 namespace Crypto.Application.Commands.Wallets;
 
-public record FreezeEthereumWalletCommand(string WalletId) : IRequest<bool>;
+public record FreezeEthereumWalletCommand(string Email) : IRequest<bool>;

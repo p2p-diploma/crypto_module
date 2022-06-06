@@ -118,7 +118,7 @@ public class BaseWalletsController : ControllerBase
     /// <summary>
     /// Freeze Ethereum and ERC20 wallets of user
     /// </summary>
-    /// <param name="id">User wallet's id</param>
+    /// <param name="email">User wallet's id</param>
     /// <param name="token"></param>
     /// <returns>Status code whether the wallets are frozen or not</returns>
     /// <remarks>
@@ -129,14 +129,13 @@ public class BaseWalletsController : ControllerBase
     /// <response code="400">When wallet id is invalid</response>
     /// <response code="500">When user's wallet cannot be loaded due to some error</response>
     //[TokenAuthorize(Roles.ADMIN)]
-    [HttpPut("freeze/{id}")]
+    [HttpPut("freeze/{email}")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401), ProducesResponseType(500)]
-    public async Task<IActionResult> FreezeWallet(string id, CancellationToken token)
+    public async Task<IActionResult> FreezeWallet(string email, CancellationToken token)
     {
-        if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
         try
         {
-            var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(id), token);
+            var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(email), token);
             return allFrozen ? Ok("Wallets are successfully frozen") : StatusCode(500, "Failed to freeze wallets");
         }
         catch (AccountNotFoundException e)

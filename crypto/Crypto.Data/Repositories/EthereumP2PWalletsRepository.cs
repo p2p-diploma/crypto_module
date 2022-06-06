@@ -85,11 +85,11 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
             cancellationToken: token);
     }
 
-    public async Task<bool> Freeze(ObjectId walletId)
+    public async Task<bool> Freeze(string email)
     {
         var freezeDef = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true)
             .Set(w => w.DateOfUnfreeze, DateTime.Now + new TimeSpan(30, 0, 0, 0));
-        var result = await P2PWallets.UpdateOneAsync(Builders<EthereumP2PWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
+        var result = await P2PWallets.UpdateOneAsync(Builders<EthereumP2PWallet<ObjectId>>.Filter.Eq(w => w.Email, email),
             freezeDef);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }

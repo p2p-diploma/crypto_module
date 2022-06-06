@@ -17,9 +17,8 @@ public class FreezeEthereumWalletHandler : EthereumWalletBaseHandler<FreezeEther
 
     public override async Task<bool> Handle(FreezeEthereumWalletCommand request, CancellationToken cancellationToken)
     {
-        var walletId = ObjectId.Parse(request.WalletId);
-        if (!await _repository.ExistsAsync(s => s.Id == walletId, cancellationToken))
-            throw new AccountNotFoundException($"Wallet with id {walletId} is not found");
-        return (await Task.WhenAll(_repository.Freeze(walletId), _p2PWalletsRepository.Freeze(walletId))).All(r => r);
+        if (!await _repository.ExistsAsync(s => s.Email == request.Email, cancellationToken))
+            throw new AccountNotFoundException($"Wallet with email {request.Email} is not found");
+        return (await Task.WhenAll(_repository.Freeze(request.Email), _p2PWalletsRepository.Freeze(request.Email))).All(r => r);
     }
 }

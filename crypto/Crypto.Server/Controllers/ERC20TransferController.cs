@@ -15,14 +15,11 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/erc20/transfer")]
-//[TokenAuthorize(Roles.USER)]
+[TokenAuthorize(Roles.USER)]
 public class ERC20TransferController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public ERC20TransferController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+    public ERC20TransferController(IMediator mediator) => _mediator = mediator;
 
     /// <summary>
     /// Transfer ERC20 from platform wallet to P2P wallet
@@ -36,7 +33,7 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("to_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> TransferToP2P([FromBody] TransferERC20ToP2PWalletCommand command, CancellationToken token)
-        => await Transfer(command, token);
+        => Ok(await _mediator.Send(command, token));
 
     /// <summary>
     /// Refund tokens from P2P wallet back to platform's wallet
@@ -50,7 +47,7 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("refund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> Refund([FromBody] RefundERC20FromP2PWalletCommand command, CancellationToken token)
-        => await Transfer(command, token);
+        => Ok(await _mediator.Send(command, token));
 
     /// <summary>
     /// Transfer ERC20 from P2P wallet to recipient's wallet
@@ -64,11 +61,8 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("from_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> TransferFromP2P([FromBody] TransferERC20FromP2PWalletCommand command, CancellationToken token)
-        => await Transfer(command, token);
-
-
-
-
+        => Ok(await _mediator.Send(command, token));
+    
     /// <summary>
     /// Fund ERC20 P2P wallet with ether: WARNING! For transferring and refunding ERC20 tokens you need to
     /// have some ether on your P2P wallet for paying gas - transaction fee.
@@ -83,31 +77,6 @@ public class ERC20TransferController : ControllerBase
     [HttpPost("fund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> FundP2P([FromBody] TransferEtherToP2PWalletCommand command, CancellationToken token)
-        => await Transfer(command, token);
+        => Ok(await _mediator.Send(command, token));
     
-    
-    private async Task<IActionResult> Transfer<TRequest>(TRequest command, CancellationToken token) where TRequest : IRequest<TransactionResponse>
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountFrozenException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
 }

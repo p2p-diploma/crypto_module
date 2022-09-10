@@ -4,7 +4,6 @@ using Crypto.Domain.Configuration;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
-using Crypto.Domain.Models.Documents;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -29,7 +28,7 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
         return wallet;
     }
 
-    public async Task<TProjection?> FindOneAndProjectAsync<TProjection>(Expression<Func<EthereumP2PWallet<ObjectId>, bool>> expr, 
+    public async Task<TProjection?> FindOneAsync<TProjection>(Expression<Func<EthereumP2PWallet<ObjectId>, bool>> expr, 
         Expression<Func<EthereumP2PWallet<ObjectId>, TProjection>> projection, CancellationToken token = default)
         => await P2PWallets.AsQueryable().Where(expr).Select(projection).FirstOrDefaultAsync(token);
 
@@ -47,7 +46,7 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
      string currencyType, CancellationToken token)
     {
         if (!await ExistsAsync(w => w.Id == walletId, token))
-            throw new AccountNotFoundException($"P2P wallet with id {walletId} is not found");
+            throw new NotFoundException($"P2P wallet with id {walletId} is not found");
         UpdateDefinition<EthereumP2PWallet<ObjectId>> updateDefinition;
         switch (currencyType)
         {
@@ -85,20 +84,20 @@ public class EthereumP2PWalletsRepository : IEthereumP2PWalletsRepository<Object
             cancellationToken: token);
     }
 
-    public async Task<bool> Freeze(string email)
+    public async Task<bool> Lock(string email)
     {
-        var freezeDef = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true)
-            .Set(w => w.DateOfUnfreeze, DateTime.Now + new TimeSpan(30, 0, 0, 0));
+        var lockDef = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.IsLocked, true)
+            .Set(w => w.UnlockDate, DateTime.Now + new TimeSpan(30, 0, 0, 0));
         var result = await P2PWallets.UpdateOneAsync(Builders<EthereumP2PWallet<ObjectId>>.Filter.Eq(w => w.Email, email),
-            freezeDef);
+            lockDef);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }
 
-    public async Task<bool> Unfreeze(ObjectId walletId)
+    public async Task<bool> Unlock(ObjectId walletId)
     {
-        var freezeDef = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.IsFrozen, false).Set(w => w.DateOfUnfreeze, null);
+        var lockDef = Builders<EthereumP2PWallet<ObjectId>>.Update.Set(w => w.IsLocked, false).Set(w => w.UnlockDate, null);
         var result = await P2PWallets.UpdateOneAsync(Builders<EthereumP2PWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
-            freezeDef);
+            lockDef);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }
 }

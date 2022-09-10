@@ -3,7 +3,6 @@ using Crypto.Application.Queries.Ethereum;
 using Crypto.Domain.Accounts;
 using Crypto.Domain.Exceptions;
 using Crypto.Domain.Interfaces;
-using Crypto.Domain.Models;
 using MongoDB.Bson;
 using Nethereum.KeyStore;
 
@@ -21,15 +20,15 @@ public class GetEthereumPrivateKeyHandler : EthereumWalletBaseHandler<GetPrivate
     public override async Task<string> Handle(GetPrivateKeyQuery request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.Id);
-        var wallet = await _repository.FindOneAndProjectAsync(w => w.Email == request.Email, w => w, cancellationToken);
-        if (wallet == null || wallet.Id != id) throw new PermissionDeniedException("You are unauthorized");
-        if (wallet.DateOfUnfreeze == DateTime.Now)
+        var wallet = await _repository.FindOneAsync(w => w.Email == request.Email, w => w, cancellationToken);
+        if (wallet == null || wallet.Id != id) throw new NotFoundException("You are unauthorized");
+        if (wallet.UnlockDate == DateTime.Now)
         {
-            await _repository.Unfreeze(wallet.Id);
+            await _repository.Unlock(wallet.Id);
         }
         else
         {
-            if (wallet.IsFrozen) throw new AccountFrozenException("Sorry, but your account is frozen");
+            if (wallet.IsLocked) throw new AccountLockedException(unlockDate: wallet.UnlockDate!.Value);
         }
         var keyService = new KeyStoreScryptService();
         var account = _accountManager.LoadAccountFromKeyStore(keyService.SerializeKeyStoreToJson(wallet.KeyStore), wallet.Hash);

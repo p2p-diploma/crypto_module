@@ -32,25 +32,10 @@ public class EthereumWalletsController : ControllerBase
     public async Task<IActionResult> GetWalletPrivateKey(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        string? access_token = HttpContext.Request.Cookies["jwt-access"]?.Split(' ').Last();
-        if (!TryGetEmailFromToken(access_token, out var email)) return Unauthorized();
-        try
-        {
-            var privateKey = await _mediator.Send(new GetPrivateKeyQuery(id, email), token);
-            return Ok(privateKey);
-        }
-        catch (PermissionDeniedException e)
-        {
-            return Unauthorized(e.Message);
-        }
-        catch (AccountFrozenException e)
-        {
-            return Unauthorized(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var accessToken = HttpContext.Request.Cookies["jwt-access"]?.Split(' ').Last();
+        if (!TryGetEmailFromToken(accessToken, out var email)) return Unauthorized();
+        var privateKey = await _mediator.Send(new GetPrivateKeyQuery(id, email), token); 
+        return Ok(privateKey);
     }
 
     private static bool TryGetEmailFromToken(string? token, out string email)
@@ -92,18 +77,7 @@ public class EthereumWalletsController : ControllerBase
     public async Task<IActionResult> GetEthereumWalletById(string id, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetEthereumWalletByIdQuery(id), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(await _mediator.Send(new GetEthereumWalletByIdQuery(id), token));
     }
 
     /// <summary>
@@ -133,23 +107,9 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(typeof(EthereumWalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetEthereumWalletByEmail([EmailAddress] string email, CancellationToken token,
-        [FromQuery] bool includeBalance = true)
-    {
-        if (!ModelState.IsValid) return BadRequest("Email is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetEthereumWalletByEmailQuery(email, includeBalance), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-    
+        [FromQuery] bool includeBalance = true) =>
+        Ok(await _mediator.Send(new GetEthereumWalletByEmailQuery(email, includeBalance), token));
+
     /// <summary>
     /// Returns information about user's Ethereum P2P wallet: Ethereum account's address, balance in Ether
     /// </summary>
@@ -178,18 +138,7 @@ public class EthereumWalletsController : ControllerBase
     public async Task<IActionResult> GetP2PWalletById(string id, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetEthereumP2PWalletByIdQuery(id), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(await _mediator.Send(new GetEthereumP2PWalletByIdQuery(id), token));
     }
     
     
@@ -218,26 +167,10 @@ public class EthereumWalletsController : ControllerBase
     [HttpGet("email/{email}/p2p")]
     [ProducesResponseType(typeof(EthereumP2PWalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
-    public async Task<IActionResult> GetP2PWalletByEmail([EmailAddress] string email, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest("Email is invalid");
-        try
-        {
-            var result = await _mediator.Send(new GetEthereumP2PWalletByEmailQuery(email), token);
-            Console.WriteLine(result.Address + " " + result.Id);
-            return Ok(result);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
-    
-    
+    public async Task<IActionResult> GetP2PWalletByEmail([EmailAddress] string email, CancellationToken token) => 
+        Ok(await _mediator.Send(new GetEthereumP2PWalletByEmailQuery(email), token));
+
+
     /// <summary>
     /// For lots: set amount of ether to buy in lot. This is the copy of balance in real wallet.
     /// </summary>
@@ -265,23 +198,8 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> SetAmountToBuy([FromBody] SetAmountToBuyCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ETH;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ETH;
+        return Ok(await _mediator.Send(command, token));
     }
     
     
@@ -312,23 +230,8 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> ReduceAmountToBuy([FromBody] ReduceAmountToBuyCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ETH;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ETH;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -358,23 +261,8 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> IncreaseAmountToBuy([FromBody] IncreaseAmountToBuyCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ETH;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ETH;
+        return Ok(await _mediator.Send(command, token));
     }
     
     
@@ -394,23 +282,8 @@ public class EthereumWalletsController : ControllerBase
     public async Task<IActionResult> GetAmountToBuy(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
-            return Ok(await _mediator.Send(query, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
+        return Ok(await _mediator.Send(query, token));
     }
     
     
@@ -444,23 +317,8 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> SetAmountToSell([FromBody] SetAmountToSellCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ETH;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ETH;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -490,26 +348,8 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> ReduceAmountToSell([FromBody] ReduceAmountToSellCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ETH;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            _logger.LogError(e.Message);
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            _logger.LogError(e.Message);
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ETH;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -539,24 +379,8 @@ public class EthereumWalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> IncreaseAmountToSell([FromBody] IncreaseAmountToSellCommand command, CancellationToken token)
     {
-        _logger.LogInformation($"Increase to sell: walletId {command.WalletId}, amount {command.Amount}");
-        try
-        {
-            command.CurrencyType = CurrencyType.ETH;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ETH;
+        return Ok(await _mediator.Send(command, token));
     }
     
     
@@ -576,22 +400,7 @@ public class EthereumWalletsController : ControllerBase
     public async Task<IActionResult> GetAmountToSell(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            var query = new GetAmountToSellQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
-            return Ok(await _mediator.Send(query, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var query = new GetAmountToSellQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
+        return Ok(await _mediator.Send(query, token));
     }
 }

@@ -13,14 +13,11 @@ namespace Crypto.Server.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/v1/eth/transfer")]
-///[TokenAuthorize(Roles.USER)]
+[TokenAuthorize(Roles.USER)]
 public class EthereumTransferController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public EthereumTransferController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+    public EthereumTransferController(IMediator mediator) => _mediator = mediator;
 
     /// <summary>
     /// Transfer Ether from platform wallet to P2P wallet
@@ -34,7 +31,7 @@ public class EthereumTransferController : ControllerBase
     [HttpPost("to_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> TransferToP2P([FromBody] TransferEtherToP2PWalletCommand command, CancellationToken token) 
-        => await Transfer(command, token);
+        => Ok(await _mediator.Send(command, token));
 
     /// <summary>
     /// Refund ether from P2P wallet back to platform's wallet
@@ -48,7 +45,7 @@ public class EthereumTransferController : ControllerBase
     [HttpPost("refund")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> Refund([FromBody] RefundEtherFromP2PWalletCommand command, CancellationToken token) 
-        => await Transfer(command, token);
+        => Ok(await _mediator.Send(command, token));
 
     /// <summary>
     /// Transfer ether from P2P wallet to recipient's wallet
@@ -62,31 +59,6 @@ public class EthereumTransferController : ControllerBase
     [HttpPost("from_p2p")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(500)]
     public async Task<IActionResult> TransferFromP2P([FromBody] TransferEtherFromP2PWalletCommand command, CancellationToken token) 
-        => await Transfer(command, token);
+        => Ok(await _mediator.Send(command, token));
 
-
-    private async Task<IActionResult> Transfer<TRequest>(TRequest command, CancellationToken token) where TRequest : IRequest<TransactionResponse>
-    {
-        if (!ModelState.IsValid) return BadRequest();
-        try
-        {
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountBalanceException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountFrozenException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (BlockchainTransactionException e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
 }

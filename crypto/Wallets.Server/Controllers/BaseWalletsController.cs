@@ -116,29 +116,29 @@ public class BaseWalletsController : ControllerBase
 
 
     /// <summary>
-    /// Freeze Ethereum and ERC20 wallets of user
+    /// Lock Ethereum and ERC20 wallets of user
     /// </summary>
     /// <param name="email">User wallet's id</param>
     /// <param name="token"></param>
     /// <returns>Status code whether the wallets are frozen or not</returns>
     /// <remarks>
-    /// WARNING: only admin has permission to freeze accounts
+    /// WARNING: only admin has permission to lock accounts
     /// 
     /// </remarks>
     /// <response code="200">Wallets are successfully frozen</response>
     /// <response code="400">When wallet id is invalid</response>
     /// <response code="500">When user's wallet cannot be loaded due to some error</response>
-    //[TokenAuthorize(Roles.ADMIN)]
-    [HttpPut("freeze/{email}")]
+    [JwtAuthorize(Roles.ADMIN)]
+    [HttpPut("lock/{email}")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401), ProducesResponseType(500)]
-    public async Task<IActionResult> FreezeWallet(string email, CancellationToken token)
+    public async Task<IActionResult> LockWallet(string email, CancellationToken token)
     {
         try
         {
-            var allFrozen = await _mediator.Send(new FreezeEthereumWalletCommand(email), token);
-            return allFrozen ? Ok("Wallets are successfully frozen") : StatusCode(500, "Failed to freeze wallets");
+            var allLocked = await _mediator.Send(new LockEthereumWalletCommand(email), token);
+            return allLocked ? Ok("Wallets are successfully locked") : StatusCode(500, "Failed to lock wallets");
         }
-        catch (AccountNotFoundException e)
+        catch (NotFoundException e)
         {
             return BadRequest(e.Message);
         }

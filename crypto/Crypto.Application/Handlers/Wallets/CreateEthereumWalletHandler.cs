@@ -4,7 +4,6 @@ using Crypto.Application.Responses.Ethereum;
 using Crypto.Domain.Accounts;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
-using Crypto.Domain.Models.Documents;
 using MongoDB.Bson;
 using static BCrypt.Net.BCrypt;
 

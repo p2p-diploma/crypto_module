@@ -14,6 +14,6 @@ public class GetAmountToBuyHandler : EthereumP2PWalletBaseHandler<GetAmountToBuy
     public override async Task<decimal> Handle(GetAmountToBuyQuery request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.WalletId);
-        return await _repository.FindOneAndProjectAsync(w => w.Id == id, wallet => wallet.EthToBuy, cancellationToken);
+        return await _repository.FindOneAsync(w => w.Id == id, wallet => wallet.EthToBuy, cancellationToken);
     }
 }

@@ -1,6 +1,4 @@
-﻿using Crypto.Domain.Configuration;
-using Crypto.Domain.Models;
-using Crypto.Domain.Models.Documents;
+﻿using Crypto.Domain.Models;
 
 namespace Crypto.Domain.Interfaces;
 
@@ -8,6 +6,6 @@ public interface IEthereumP2PWalletsRepository<TId> : IWalletsRepository<Ethereu
 {
     Task<EthereumP2PWallet<TId>> UpdateAmountToBuyAsync(TId walletId, decimal amount, string currencyType, CancellationToken token = default);
     Task<EthereumP2PWallet<TId>> UpdateAmountToSellAsync(TId walletId, decimal amount, string currencyType, CancellationToken token = default);
-    Task<bool> Freeze(string email);
-    Task<bool> Unfreeze(TId walletId);
+    Task<bool> Lock(string email);
+    Task<bool> Unlock(TId walletId);
 }

@@ -14,12 +14,11 @@ public class Erc20AccountManager : EthereumAccountManager
 {
     private StandardERC20Service _token;
     public string TokenAddress { get; }
-    
-    public Erc20AccountManager(string blockchainUrl, BlockchainConnections blockchainConnections, SmartContractSettings settings,
+    public Erc20AccountManager(string blockchainUrl, BlockchainConnections blockchainConnections,
         ILogger<Erc20AccountManager> logger)
         : base(blockchainUrl, blockchainConnections, logger)
     {
-        TokenAddress = settings.TokenAddress;
+        TokenAddress = blockchainConnections.TokenAddress;
     }
     public override async Task<decimal> GetAccountBalanceAsync(Account account)
     {
@@ -28,17 +27,17 @@ public class Erc20AccountManager : EthereumAccountManager
         try
         {
             var amount = await _token.BalanceOfQueryAsync(account.Address);
-            _logger.LogInformation($"ERC20 balance of {account.Address}: {amount}");
+            _logger.LogInformation("ERC20 balance of {account.Address}: {Amount}", account.Address, amount);
             return Web3.Convert.FromWei(amount, UnitConversion.EthUnit.Kwei);
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError("Retrieve account {account.Address} balance error: {e.Message}", account.Address, e.Message);
             return 0;
         }
     }
 
-    public override async Task<TransactionResponse> TransferAsync(string recipient, decimal amount, Account sender, 
+    public override async Task<TransactionDetails> TransferAsync(string recipient, decimal amount, Account sender, 
         CancellationToken cancellationToken = default)
     {
         var web3 = new Web3(sender, BlockchainUrl){ TransactionManager = { UseLegacyAsDefault = true } };
@@ -48,17 +47,20 @@ public class Erc20AccountManager : EthereumAccountManager
         var balanceMessage = new BalanceOfFunction { FromAddress = sender.Address, Account = sender.Address };
         var tokenBalance = await _token.BalanceOfQueryAsync(balanceMessage);
         var amountInWei = Web3.Convert.ToWei(amount, UnitConversion.EthUnit.Kwei);
+        
         if (tokenBalance < amountInWei)
         {
-            _logger.LogWarning($"Not enough ERC20 to transfer to {recipient}: {amount} from {sender.Address}: {tokenBalance}");
-            throw new AccountBalanceException("Not enough balance on wallet");
+            _logger.LogWarning("Not enough ERC20 to transfer to {Recipient}: {Amount} from {sender.Address}: {TokenBalance}",
+                recipient, amount, sender.Address, tokenBalance);
+            throw new AccountBalanceException(tokenBalance, amountInWei, CurrencyType.ERC20);
         }
         //Check the balance and compare with estimated gas to transfer ERC20
         var values = await Task.WhenAll(web3.Eth.GetBalance.SendRequestAsync(sender.Address), _token.ContractHandler.EstimateGasAsync(balanceMessage));
         if (values[0].Value < values[1].Value)
         {
-            _logger.LogWarning($"ETH amount of {sender.Address}: {values[0].Value} is less than gas: {values[1].Value}");
-            throw new AccountBalanceException("Not enough balance on wallet to pay gas");
+            _logger.LogWarning("ETH amount of {sender.Address}: {values[0].Value} is less than gas: {values[1].Value}", 
+                sender.Address, values[0].Value, values[1].Value);
+            throw new AccountBalanceException(values[0].Value, values[1].Value, CurrencyType.ERC20);
         }
         //Try transfer ERC20 to recipient
         var transaction = await _token.ContractHandler
@@ -67,12 +69,12 @@ public class Erc20AccountManager : EthereumAccountManager
         //if transaction is successful
         if (transaction.HasErrors() is false)
         {
-            _logger.LogInformation($"Successful ERC20 transfer transaction for {sender.Address}");
+            _logger.LogInformation("Successful ERC20 transfer transaction for {sender.Address}", sender.Address);
             return new(sender.Address, recipient, CurrencyType.ERC20, amount, transaction.TransactionHash, DateTime.Now);
         }
         //else throw transaction error
-        _logger.LogError($"ERC20 transfer transaction error for {sender.Address}");
-        throw new BlockchainTransactionException("Transaction error occured");
+        _logger.LogError("ERC20 transfer transaction error for {sender.Address}", sender.Address);
+        throw new TransferTransactionException("Transaction error occured");
     }
 
 }

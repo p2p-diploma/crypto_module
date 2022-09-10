@@ -14,6 +14,6 @@ public class GetAmountToSellHandler : EthereumP2PWalletBaseHandler<GetAmountToSe
     public override async Task<decimal> Handle(GetAmountToSellQuery request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.WalletId);
-        return await _repository.FindOneAndProjectAsync(w => w.Id == id, wallet => wallet.EthToSell, cancellationToken);
+        return await _repository.FindOneAsync(w => w.Id == id, wallet => wallet.EthToSell, cancellationToken);
     }
 }

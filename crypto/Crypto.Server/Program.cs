@@ -6,6 +6,7 @@ using Crypto.Data.Repositories;
 using Crypto.Domain.Accounts;
 using Crypto.Domain.Configuration;
 using Crypto.Domain.Interfaces;
+using Crypto.Server.Filters;
 using Crypto.Server.Validators.Ethereum;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -20,7 +21,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 #region MediatR, FluentValidation, Controllers
-builder.Services.AddControllers().AddNewtonsoftJson().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RefundEtherFromP2PWalletValidator>())
+builder.Services.AddControllers(opts =>
+    {
+        opts.Filters.Add<ExceptionHandleFilter>();
+    }).AddNewtonsoftJson().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RefundEtherFromP2PWalletValidator>())
     .ConfigureApiBehaviorOptions(opt => {
         opt.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(context.ModelState.Values.First(q => q.Errors.Count > 0).Errors.First(er => !string.IsNullOrEmpty(er.ErrorMessage)).ErrorMessage);
     });
@@ -43,9 +47,8 @@ builder.Services.AddTransient(opt =>
 builder.Services.AddTransient(opt =>
 {
     var connections = opt.GetRequiredService<BlockchainConnections>();
-    var settings = opt.GetRequiredService<SmartContractSettings>();
     var logger = opt.GetRequiredService<ILogger<Erc20AccountManager>>();
-    return new Erc20AccountManager(connections.Ganache, connections, settings, logger);
+    return new Erc20AccountManager(connections.Ganache, connections, logger);
 });
 #endregion
 #region Configuration
@@ -53,9 +56,8 @@ builder.Services.AddSingleton(new BlockchainConnections
 {
     Ganache = builder.Configuration["BlockchainConnections:Ganache"], Kovan = builder.Configuration["BlockchainConnections:Kovan"],
     Rinkeby = builder.Configuration["BlockchainConnections:Rinkeby"], Goerly = builder.Configuration["BlockchainConnections:Goerly"],
-    Ropsten = builder.Configuration["BlockchainConnections:Ropsten"]
+    Ropsten = builder.Configuration["BlockchainConnections:Ropsten"], TokenAddress = builder.Configuration["SmartContractSettings:TokenAddress"]
 });
-builder.Services.AddSingleton(new SmartContractSettings { TokenAddress = builder.Configuration["SmartContractSettings:TokenAddress"] });
 builder.Services.AddSingleton(new DatabaseSettings
 {
     ConnectionString = builder.Configuration["DatabaseSettings:ConnectionString"],
@@ -69,8 +71,6 @@ builder.Services.AddSingleton<IMongoClient>(new MongoClient(builder.Configuratio
 builder.Services.AddScoped<IEthereumWalletsRepository<ObjectId>, EthereumWalletsRepository>();
 builder.Services.AddScoped<IEthereumP2PWalletsRepository<ObjectId>, EthereumP2PWalletsRepository>();
 #endregion
-//builder.Services.AddCors();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 #region Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -96,7 +96,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseHttpLogging();
-//app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+app.UseCors(b => b.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

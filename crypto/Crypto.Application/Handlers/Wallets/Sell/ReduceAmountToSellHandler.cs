@@ -20,7 +20,7 @@ public class ReduceAmountToSellHandler : EthereumP2PWalletBaseHandler<ReduceAmou
     {
         var id = ObjectId.Parse(request.WalletId);
         _logger.LogInformation($"Reduce to sell wallet id: {id}");
-        var amountToSell = await _repository.FindOneAndProjectAsync(w => w.Id == id, wallet => wallet.EthToSell, cancellationToken);
+        var amountToSell = await _repository.FindOneAsync(w => w.Id == id, wallet => wallet.EthToSell, cancellationToken);
         _logger.LogInformation($"Reduce to sell amount to sell of id: {id} => {amountToSell}");
         if (amountToSell < request.Amount)
         {

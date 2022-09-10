@@ -19,10 +19,7 @@ namespace Wallets.Server.Controllers;
 public class ERC20WalletsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public ERC20WalletsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+    public ERC20WalletsController(IMediator mediator) => _mediator = mediator;
 
     /// <summary>
     /// Returns information about user's ERC20 wallet: associated Ethereum account's address, balance in ERC20 tokens
@@ -52,18 +49,7 @@ public class ERC20WalletsController : ControllerBase
     public async Task<IActionResult> GetTokenWalletById(string id, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetErc20WalletByIdQuery(id), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(await _mediator.Send(new GetErc20WalletByIdQuery(id), token));
     }
     
     /// <summary>
@@ -92,21 +78,7 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(typeof(Erc20WalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetTokenWalletByEmail([EmailAddress] string email, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest("Email is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetErc20WalletByEmailQuery(email), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+    => Ok(await _mediator.Send(new GetErc20WalletByEmailQuery(email), token));
     
     /// <summary>
     /// Returns information about user's ERC20 P2P wallet: associated Ethereum account's address, balance in ERC20 tokens
@@ -136,18 +108,7 @@ public class ERC20WalletsController : ControllerBase
     public async Task<IActionResult> GetP2PTokenWallet(string id, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(id) || !IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetErc20P2PWalletByIdQuery(id), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(await _mediator.Send(new GetErc20P2PWalletByIdQuery(id), token));
     }
     
     /// <summary>
@@ -176,21 +137,7 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(typeof(Erc20P2PWalletResponse), 200)]
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> GetP2PTokenWalletByEmail([EmailAddress] string email, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return BadRequest("Email is invalid");
-        try
-        {
-            return Ok(await _mediator.Send(new GetErc20P2PWalletByEmailQuery(email), token));
-        }
-        catch (AccountNotFoundException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+    => Ok(await _mediator.Send(new GetErc20P2PWalletByEmailQuery(email), token));
     
     
     
@@ -221,23 +168,8 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> SetAmountToBuy([FromBody] SetAmountToBuyCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ERC20;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -267,23 +199,8 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> ReduceAmountToBuy([FromBody] ReduceAmountToBuyCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ERC20;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -313,23 +230,8 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> IncreaseAmountToBuy([FromBody] IncreaseAmountToBuyCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ERC20;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -348,24 +250,7 @@ public class ERC20WalletsController : ControllerBase
     public async Task<IActionResult> GetAmountToBuy(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ETH};
-            query.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(query, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        return Ok(await _mediator.Send(new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ERC20}, token));
     }
     
     
@@ -396,23 +281,8 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> SetAmountToSell([FromBody] SetAmountToSellCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ERC20;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -442,23 +312,8 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> ReduceAmountToSell([FromBody] ReduceAmountToSellCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ERC20;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -488,23 +343,8 @@ public class ERC20WalletsController : ControllerBase
     [ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(500)]
     public async Task<IActionResult> IncreaseAmountToSell([FromBody] IncreaseAmountToSellCommand command, CancellationToken token)
     {
-        try
-        {
-            command.CurrencyType = CurrencyType.ERC20;
-            return Ok(await _mediator.Send(command, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        command.CurrencyType = CurrencyType.ERC20;
+        return Ok(await _mediator.Send(command, token));
     }
     
     /// <summary>
@@ -523,22 +363,7 @@ public class ERC20WalletsController : ControllerBase
     public async Task<IActionResult> GetAmountToSell(string id, CancellationToken token)
     {
         if (!IsParsable(id)) return BadRequest("Wallet id is invalid");
-        try
-        {
-            var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ERC20 };
-            return Ok(await _mediator.Send(query, token));
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (AccountNotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
+        var query = new GetAmountToBuyQuery { WalletId = id, CurrencyType = CurrencyType.ERC20 };
+        return Ok(await _mediator.Send(query, token));
     }
 }

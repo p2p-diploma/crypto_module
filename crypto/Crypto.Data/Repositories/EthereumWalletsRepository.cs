@@ -2,7 +2,6 @@
 using Crypto.Data.Configuration;
 using Crypto.Domain.Interfaces;
 using Crypto.Domain.Models;
-using Crypto.Domain.Models.Documents;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -26,7 +25,7 @@ public class EthereumWalletsRepository : IEthereumWalletsRepository<ObjectId>
         return ethereumWallet;
     }
 
-    public async Task<TProjection?> FindOneAndProjectAsync<TProjection>(Expression<Func<EthereumWallet<ObjectId>, bool>> expr,
+    public async Task<TProjection?> FindOneAsync<TProjection>(Expression<Func<EthereumWallet<ObjectId>, bool>> expr,
         Expression<Func<EthereumWallet<ObjectId>, TProjection>> projection, CancellationToken token = default) =>
         await Wallets.AsQueryable().Where(expr).Select(projection).FirstOrDefaultAsync(token);
 
@@ -40,20 +39,20 @@ public class EthereumWalletsRepository : IEthereumWalletsRepository<ObjectId>
             cancellationToken:token);
     }
 
-    public async Task<bool> Freeze(string email)
+    public async Task<bool> Lock(string email)
     {
-        var freezeDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsFrozen, true)
-            .Set(w => w.DateOfUnfreeze, DateTime.Now + new TimeSpan(30, 0, 0, 0));
+        var lockDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsLocked, true)
+            .Set(w => w.UnlockDate, DateTime.Now + new TimeSpan(30, 0, 0, 0));
         var result = await Wallets.UpdateOneAsync(Builders<EthereumWallet<ObjectId>>.Filter.Eq(w => w.Email, email),
-            freezeDef);
+            lockDef);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }
     
-    public async Task<bool> Unfreeze(ObjectId walletId)
+    public async Task<bool> Unlock(ObjectId walletId)
     {
-        var freezeDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsFrozen, false).Set(w => w.DateOfUnfreeze, null);
+        var lockDef = Builders<EthereumWallet<ObjectId>>.Update.Set(w => w.IsLocked, false).Set(w => w.UnlockDate, null);
         var result = await Wallets.UpdateOneAsync(Builders<EthereumWallet<ObjectId>>.Filter.Eq(w => w.Id, walletId),
-            freezeDef);
+            lockDef);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }
 }

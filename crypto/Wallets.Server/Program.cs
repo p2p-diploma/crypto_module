@@ -14,12 +14,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Wallets.Server.Filters;
 using Wallets.Server.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 #region MediatR, FluentValidation, Controllers
-builder.Services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CreateEthereumWalletValidator>())
+builder.Services.AddControllers(opts =>
+    {
+        opts.Filters.Add<ExceptionHandleFilter>();
+    }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CreateEthereumWalletValidator>())
     .ConfigureApiBehaviorOptions(opt => {
         opt.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(context.ModelState.Values.First(q => q.Errors.Count > 0).Errors.First(er => !string.IsNullOrEmpty(er.ErrorMessage)).ErrorMessage);
     });
@@ -42,9 +46,8 @@ builder.Services.AddTransient(opt =>
 builder.Services.AddTransient(opt =>
 {
     var connections = opt.GetRequiredService<BlockchainConnections>();
-    var settings = opt.GetRequiredService<SmartContractSettings>();
     var logger = opt.GetRequiredService<ILogger<Erc20AccountManager>>();
-    return new Erc20AccountManager(connections.Ganache, connections, settings, logger);
+    return new Erc20AccountManager(connections.Ganache, connections, logger);
 });
 #endregion
 #region Configuration
@@ -52,9 +55,8 @@ builder.Services.AddSingleton(new BlockchainConnections
 {
     Ganache = builder.Configuration["BlockchainConnections:Ganache"], Kovan = builder.Configuration["BlockchainConnections:Kovan"],
     Rinkeby = builder.Configuration["BlockchainConnections:Rinkeby"], Goerly = builder.Configuration["BlockchainConnections:Goerly"],
-    Ropsten = builder.Configuration["BlockchainConnections:Ropsten"]
+    Ropsten = builder.Configuration["BlockchainConnections:Ropsten"], TokenAddress = builder.Configuration["SmartContractSettings:TokenAddress"]
 });
-builder.Services.AddSingleton(new SmartContractSettings { TokenAddress = builder.Configuration["SmartContractSettings:TokenAddress"] });
 builder.Services.AddSingleton(new DatabaseSettings
 {
     ConnectionString = builder.Configuration["DatabaseSettings:ConnectionString"],

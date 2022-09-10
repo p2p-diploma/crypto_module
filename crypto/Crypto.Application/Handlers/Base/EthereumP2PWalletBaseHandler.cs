@@ -1,5 +1,4 @@
 ﻿using Crypto.Domain.Interfaces;
-using Crypto.Domain.Models;
 using MediatR;
 using MongoDB.Bson;
 

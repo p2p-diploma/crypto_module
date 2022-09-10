@@ -15,7 +15,7 @@ public class ReduceAmountToBuyHandler : EthereumP2PWalletBaseHandler<ReduceAmoun
     public override async Task<decimal> Handle(ReduceAmountToBuyCommand request, CancellationToken cancellationToken)
     {
         var id = ObjectId.Parse(request.WalletId);
-        var amountToBuy = await _repository.FindOneAndProjectAsync(w => w.Id == id, wallet => wallet.EthToBuy, cancellationToken);
+        var amountToBuy = await _repository.FindOneAsync(w => w.Id == id, wallet => wallet.EthToBuy, cancellationToken);
         if (amountToBuy < request.Amount)
             throw new ArgumentException("The amount to buy exceeds the balance in P2P wallet");
         amountToBuy -= request.Amount;

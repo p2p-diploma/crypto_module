@@ -7,7 +7,7 @@ public record BlockchainConnections
     public string Rinkeby { get; set; }
     public string Goerly { get; set; }
     public string Ganache { get; set; }
-
+    public string TokenAddress { get; set; }
     public int GetChainId(string blockchainUrl)
     {
         int chainId = 0;
